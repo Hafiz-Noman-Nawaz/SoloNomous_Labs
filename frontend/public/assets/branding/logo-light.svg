@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 60" fill="none" class="solonomous-logo-light">
+  <defs>
+    <linearGradient id="purpleGradLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C3AED" />
+      <stop offset="100%" stop-color="#6D28D9" />
+    </linearGradient>
+    <linearGradient id="flaskLiquidLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0.95" />
+    </linearGradient>
+  </defs>
+
+  <!-- Minimalist Laboratory Flask Icon with Bubbles -->
+  <g transform="translate(6, 4)">
+    <path d="M 22 8 L 22 17 L 11 36 C 9 40 12 44 17 44 L 37 44 C 42 44 45 40 43 36 L 32 17 L 32 8" 
+          stroke="url(#purpleGradLight)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <line x1="19" y1="8" x2="35" y2="8" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M 14.5 35 Q 21 32 27 34 T 39.5 35 C 41 38 39.5 42 36 42 L 18 42 C 14.5 42 13 38 14.5 35 Z" 
+          fill="url(#flaskLiquidLight)" />
+    <!-- Emerging Bubbles -->
+    <circle cx="27" cy="18" r="2" fill="#7C3AED" />
+    <circle cx="23" cy="11" r="2.5" fill="#8B5CF6" />
+    <circle cx="31" cy="4" r="1.8" fill="#A78BFA" />
+    <circle cx="25" cy="-2" r="1.2" fill="#C4B5FD" />
+  </g>
+
+  <!-- Typography -->
+  <g transform="translate(62, 34)">
+    <text font-family="'Outfit', 'Inter', -apple-system, sans-serif" font-weight="800" font-size="24" letter-spacing="-0.03em">
+      <tspan fill="#7C3AED">Solo</tspan>
+      <tspan fill="#0F172A">Nomous</tspan>
+    </text>
+    <!-- Subtitle: Labs -->
+    <text x="1" y="16" font-family="'Inter', -apple-system, sans-serif" font-weight="600" font-size="10.5" letter-spacing="0.32em" fill="#0F172A">
+      LABS
+    </text>
+  </g>
+</svg>
