@@ -11,7 +11,10 @@ export default async function handler(req: Request, res: Response) {
     await initAppData();
 
     // 3. Preserve original client path if modified by Vercel serverless rewrites
-    if (req.originalUrl && req.url !== req.originalUrl) {
+    const matchedPath = (req.headers['x-matched-path'] as string) || req.originalUrl;
+    if (matchedPath && matchedPath !== '/api' && req.url === '/api') {
+      req.url = matchedPath;
+    } else if (req.originalUrl && req.url !== req.originalUrl) {
       req.url = req.originalUrl;
     }
 
