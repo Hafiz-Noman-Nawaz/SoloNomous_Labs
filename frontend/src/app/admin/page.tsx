@@ -34,11 +34,13 @@ import {
   MessageSquare,
   Star,
   Calendar,
-  Code2
+  Code2,
+  TrendingUp
 } from 'lucide-react';
 import { SiteSettings } from '@/types';
 import { CloudinaryUploadWidget } from '@/components/ui/CloudinaryUploadWidget';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import { extractKeyImpacts } from '@/components/ui/KeyImpactsCarousel';
 
 interface AdminPermissions {
   canManageLeads: boolean;
@@ -613,7 +615,15 @@ export default function AdminPortalPage() {
       overview: cs.overview || '',
       challenge: cs.challenge || '',
       solution: cs.strategy || cs.solution || '',
-      resultsMetric: cs.results?.[0]?.metric ? `${cs.results[0].metric} ${cs.results[0].label || ''}` : (cs.metrics?.[0]?.value || '99.99% Reliability'),
+      resultsMetric: Array.isArray(cs.results) && cs.results.length > 0
+        ? cs.results.map((r: any) => {
+            const m = (r.metric || r.value || '').trim();
+            const l = r.label && r.label.toLowerCase() !== 'outcome' && r.label.toLowerCase() !== 'gain' && r.label.toLowerCase() !== 'key outcome'
+              ? ` ${r.label.trim()}`
+              : '';
+            return `${m}${l}`.trim();
+          }).filter(Boolean).join(', ')
+        : (cs.resultsMetric || '99.99% Uptime, 10x Latency Reduction'),
       featuredImage: cs.heroImage?.url || (typeof cs.featuredImage === 'string' ? cs.featuredImage : cs.featuredImage?.url) || ''
     });
     setShowCaseStudyModal(true);
@@ -630,6 +640,8 @@ export default function AdminPortalPage() {
         ? `${caseStudyForm.startDate} – ${caseStudyForm.endDate || 'Present'}`
         : '8 Weeks';
 
+      const parsedResults = extractKeyImpacts(undefined, caseStudyForm.resultsMetric);
+
       const payload = {
         title: caseStudyForm.title,
         slug: caseStudyForm.slug || caseStudyForm.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
@@ -645,8 +657,9 @@ export default function AdminPortalPage() {
         strategy: caseStudyForm.solution || caseStudyForm.overview,
         solution: caseStudyForm.solution || caseStudyForm.overview,
         architectureDetails: caseStudyForm.solution || caseStudyForm.overview,
-        results: [{ metric: caseStudyForm.resultsMetric || '10x', label: 'Outcome' }],
-        metrics: [{ label: 'Outcome', value: caseStudyForm.resultsMetric || '10x' }],
+        results: parsedResults,
+        metrics: parsedResults.map((p) => ({ label: p.label, value: p.metric })),
+        resultsMetric: caseStudyForm.resultsMetric,
         heroImage: { url: caseStudyForm.featuredImage },
         featuredImage: caseStudyForm.featuredImage,
         featured: true,
@@ -1763,11 +1776,27 @@ export default function AdminPortalPage() {
                         </div>
                       )}
 
-                      {cs.results?.[0] && (
-                        <div className="mt-2.5 p-2 rounded-xl bg-purple-950/20 border border-purple-500/20 text-purple-300 text-xs font-mono">
-                          {cs.results[0].label}: <strong>{cs.results[0].metric}</strong>
-                        </div>
-                      )}
+                      {(() => {
+                        const parsed = extractKeyImpacts(cs.results);
+                        return parsed.length > 0 ? (
+                          <div className="mt-2.5 space-y-1">
+                            <div className="text-[10px] text-slate-400 flex items-center gap-1 font-semibold">
+                              <TrendingUp className="w-3 h-3 text-purple-400" />
+                              Key Impacts ({parsed.length}):
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {parsed.map((item, pi) => (
+                                <span
+                                  key={pi}
+                                  className="px-2 py-0.5 rounded-md bg-purple-950/40 border border-purple-500/30 text-purple-200 text-[10px] font-mono"
+                                >
+                                  <strong>{item.metric}</strong> {item.label}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null;
+                      })()}
                     </div>
 
                     <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
@@ -2691,15 +2720,46 @@ export default function AdminPortalPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Benchmark Metric (Key Result)</label>
+                {/* KEY IMPACTS SECTION */}
+                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-slate-300 font-semibold flex items-center gap-1.5">
+                      <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
+                      Key Impacts / Benchmark Metrics (Comma-separated)
+                    </label>
+                    <span className="text-[10px] text-purple-400 font-medium">Carousel & Scrollbar enabled</span>
+                  </div>
                   <input
                     type="text"
                     value={caseStudyForm.resultsMetric}
                     onChange={(e) => setCaseStudyForm({ ...caseStudyForm, resultsMetric: e.target.value })}
-                    placeholder="99.99% Uptime, 10x Latency Reduction"
+                    placeholder="e.g. 98+ Lighthouse Performance Score, 3x Faster Media Delivery, 99.99% Uptime"
                     className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
                   />
+                  {caseStudyForm.resultsMetric ? (
+                    <div className="space-y-1.5 pt-1">
+                      <div className="text-[10px] text-slate-400">Carousel item cards that will render:</div>
+                      <div className="flex flex-wrap gap-2">
+                        {extractKeyImpacts(undefined, caseStudyForm.resultsMetric).map((impact, idx) => (
+                          <div
+                            key={idx}
+                            className="px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/30 flex items-center gap-1.5 shadow-sm"
+                          >
+                            <span className="text-xs font-bold text-purple-200 font-display">
+                              {impact.metric}
+                            </span>
+                            <span className="text-[10px] text-slate-300 font-medium">
+                              {impact.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-slate-500 italic">
+                      Separate each key impact with a comma. On the website, these display as an animated carousel with depth fade and a glowing progress scroll bar.
+                    </p>
+                  )}
                 </div>
 
                 {/* COVER IMAGE UPLOAD & LIVE PREVIEW */}

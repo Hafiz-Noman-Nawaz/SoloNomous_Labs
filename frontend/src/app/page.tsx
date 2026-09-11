@@ -28,6 +28,7 @@ import { TiltCard } from '@/components/ui/TiltCard';
 import { MagneticButton } from '@/components/ui/MagneticButton';
 import { FloatingOrbs } from '@/components/ui/FloatingOrbs';
 import { CursorSpotlight } from '@/components/ui/CursorSpotlight';
+import { KeyImpactsCarousel } from '@/components/ui/KeyImpactsCarousel';
 
 export default function HomePage() {
   const { user, isSignedIn } = useUser();
@@ -425,15 +426,8 @@ export default function HomePage() {
                       </p>
                     </div>
 
-                    <div>
-                      <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 mb-4 text-center">
-                        {study.results?.slice(0, 3).map((r, ri) => (
-                          <div key={ri}>
-                            <div className="text-sm font-bold text-purple-300">{r.metric}</div>
-                            <div className="text-[9px] text-slate-400 truncate">{r.label}</div>
-                          </div>
-                        ))}
-                      </div>
+                    <div className="space-y-4">
+                      <KeyImpactsCarousel results={study.results} />
 
                       <Link
                         href={`/work/${study.slug}`}

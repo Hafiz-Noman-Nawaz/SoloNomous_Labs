@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { api } from '@/lib/api';
 import { CaseStudy } from '@/types';
 import { ArrowRight, Sparkles, Layers, CheckCircle2 } from 'lucide-react';
+import { KeyImpactsCarousel } from '@/components/ui/KeyImpactsCarousel';
 
 export default function WorkPage() {
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
@@ -75,17 +76,8 @@ export default function WorkPage() {
                   {study.overview}
                 </p>
 
-                {/* Outcome Metrics */}
-                <div className="grid grid-cols-3 gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 text-center">
-                  {study.results?.slice(0, 3).map((r, ri) => (
-                    <div key={ri}>
-                      <div className="text-base sm:text-lg font-bold font-display text-purple-300">
-                        {r.metric}
-                      </div>
-                      <div className="text-[10px] text-slate-400 truncate">{r.label}</div>
-                    </div>
-                  ))}
-                </div>
+                {/* Outcome Metrics Carousel */}
+                <KeyImpactsCarousel results={study.results} />
 
                 {/* Tech badges */}
                 <div className="flex flex-wrap gap-1.5">

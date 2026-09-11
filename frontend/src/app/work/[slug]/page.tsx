@@ -13,6 +13,7 @@ import {
   Calendar,
   Building
 } from 'lucide-react';
+import { extractKeyImpacts } from '@/components/ui/KeyImpactsCarousel';
 
 interface Props {
   params: { slug: string };
@@ -76,10 +77,10 @@ export default async function CaseStudyDetailPage({ params }: Props) {
       </div>
 
       {/* Highlight Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-16">
-        {study.results?.map((res: any, idx: number) => (
-          <div key={idx} className="glass-card p-6 rounded-2xl text-center border border-white/10">
-            <div className="text-3xl sm:text-4xl font-extrabold font-display text-purple-300 mb-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-16">
+        {extractKeyImpacts(study.results).map((res: any, idx: number) => (
+          <div key={idx} className="glass-card p-6 rounded-2xl text-center border border-white/10 hover:border-purple-500/30 transition-all">
+            <div className="text-3xl sm:text-4xl font-extrabold font-display bg-gradient-to-r from-purple-200 via-white to-purple-300 bg-clip-text text-transparent mb-1">
               {res.metric}
             </div>
             <div className="text-xs text-slate-400 uppercase tracking-wider font-medium">{res.label}</div>

@@ -3,6 +3,63 @@ import { CaseStudy } from '../models/CaseStudy';
 import { AppError } from '../middleware/errorHandler';
 import slugify from 'slugify';
 
+function parseResultsHelper(rawResults: any, rawMetricString?: string): Array<{ metric: string; label: string }> {
+  const items: Array<{ metric: string; label: string }> = [];
+
+  const parseString = (str: string) => {
+    const trimmed = str.trim();
+    if (!trimmed) return;
+
+    const leadingMetricMatch = trimmed.match(
+      /^([~<>±]?\$?\d+(?:\.\d+)?(?:[xX%+]|ms|s|k|M|B|k\+|M\+)?)\s*(.*)$/i
+    );
+    if (leadingMetricMatch && leadingMetricMatch[1]) {
+      const metric = leadingMetricMatch[1].trim();
+      const label = leadingMetricMatch[2]?.trim() || 'Key Impact';
+      items.push({ metric, label });
+      return;
+    }
+
+    if (trimmed.includes(':')) {
+      const parts = trimmed.split(':');
+      items.push({
+        label: parts[0].trim(),
+        metric: parts.slice(1).join(':').trim()
+      });
+      return;
+    }
+
+    const words = trimmed.split(/\s+/);
+    if (words.length <= 2) {
+      items.push({ metric: trimmed, label: 'Key Outcome' });
+    } else {
+      items.push({ metric: words[0], label: words.slice(1).join(' ') });
+    }
+  };
+
+  if (typeof rawMetricString === 'string' && rawMetricString.trim()) {
+    rawMetricString.split(',').forEach(parseString);
+  }
+
+  if (Array.isArray(rawResults) && rawResults.length > 0) {
+    rawResults.forEach((r: any) => {
+      const metricStr = typeof r === 'string' ? r : (r.metric || r.value || '');
+      const labelStr = typeof r === 'object' ? (r.label || '') : '';
+      if (metricStr.includes(',')) {
+        metricStr.split(',').forEach(parseString);
+      } else if (metricStr) {
+        if (!labelStr || labelStr.toLowerCase() === 'outcome' || labelStr.toLowerCase() === 'gain') {
+          parseString(metricStr);
+        } else {
+          items.push({ metric: metricStr, label: labelStr });
+        }
+      }
+    });
+  }
+
+  return items.length > 0 ? items : [{ metric: '10x', label: 'Efficiency' }];
+}
+
 export class CaseStudyController {
   /**
    * Public: List published case studies
@@ -79,9 +136,7 @@ export class CaseStudyController {
 
       const heroImageUrl = req.body.heroImage?.url || (typeof req.body.featuredImage === 'string' ? req.body.featuredImage : req.body.featuredImage?.url) || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80';
 
-      const results = req.body.results || (req.body.metrics && Array.isArray(req.body.metrics)
-        ? req.body.metrics.map((m: any) => ({ metric: m.value || m.metric || '10x', label: m.label || 'Gain' }))
-        : [{ metric: '10x', label: 'Efficiency' }]);
+      const results = parseResultsHelper(req.body.results || req.body.metrics, req.body.resultsMetric);
 
       let techStack = req.body.techStack;
       if (typeof techStack === 'string') {
@@ -166,8 +221,8 @@ export class CaseStudyController {
         if (!updateData.architectureDetails) updateData.architectureDetails = req.body.solution;
       }
 
-      if (req.body.metrics && Array.isArray(req.body.metrics)) {
-        updateData.results = req.body.metrics.map((m: any) => ({ metric: m.value || m.metric || '10x', label: m.label || 'Gain' }));
+      if (req.body.results || req.body.metrics || req.body.resultsMetric) {
+        updateData.results = parseResultsHelper(req.body.results || req.body.metrics, req.body.resultsMetric);
       }
 
       const caseStudy = await CaseStudy.findByIdAndUpdate(id, updateData, { new: true });
