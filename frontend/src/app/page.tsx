@@ -30,10 +30,14 @@ import { MagneticButton } from '@/components/ui/MagneticButton';
 import { FloatingOrbs } from '@/components/ui/FloatingOrbs';
 import { CursorSpotlight } from '@/components/ui/CursorSpotlight';
 import { KeyImpactsCarousel } from '@/components/ui/KeyImpactsCarousel';
+import GradientWaves from '@/components/backgrounds/GradientWaves';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function HomePage() {
   const { user, isSignedIn } = useUser();
   const { openProjectModal } = useModal();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
@@ -123,27 +127,61 @@ export default function HomePage() {
       <FloatingOrbs />
 
       {/* 1. HERO SECTION */}
-      <section className="relative min-h-[90vh] flex items-center justify-center pt-8 pb-20 px-4 sm:px-6 lg:px-8">
+      <section className="relative min-h-[90vh] flex items-center justify-center pt-8 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* React Bits WebGL Gradient Waves: Only Active in Dark Theme */}
+        {isDark && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+            <GradientWaves
+              horizonColor="#5227FF"
+              waveColor="#FF9FFC"
+              crestColor="#FFFFFF"
+              speed={0.4}
+              amplitude={2.5}
+              waveScale={0.6}
+              waveRatio={0.9}
+              swell={35}
+              turbulence={20}
+              tilt={1.11}
+              zoom={1}
+              height={5.5}
+              fogDepth={15}
+              detail="medium"
+              brightness={1}
+              opacity={0.8}
+              mouseInteraction
+              parallaxStrength={0.5}
+              grain
+              grainIntensity={0.05}
+              className="w-full h-full"
+            />
+            {/* Ambient vignette & contrast protection overlays for pristine readability */}
+            <div className="absolute inset-0 bg-[#09080E]/35 pointer-events-none" />
+            <div className="absolute inset-y-0 left-0 w-full lg:w-3/5 bg-gradient-to-r from-[#09080E]/90 via-[#09080E]/55 to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#09080E] via-[#09080E]/70 to-transparent pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-[#09080E]/70 to-transparent pointer-events-none" />
+          </div>
+        )}
+
         {/* Ambient lighting */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-purple-600/10 blur-[130px] rounded-full pointer-events-none -z-10" />
         <div className="absolute top-10 left-10 w-72 h-72 bg-indigo-600/10 blur-[100px] rounded-full pointer-events-none -z-10" />
 
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
           {/* Left Content (7 Cols) */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             {/* Status Pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-xs font-medium text-purple-300">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 backdrop-blur-md text-xs font-medium text-purple-300 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
               <span>{hero.badgeText}</span>
             </div>
 
             {/* Primary Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[68px] font-extrabold font-display leading-[1.08] tracking-tight text-white">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[68px] font-extrabold font-display leading-[1.08] tracking-tight text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
               We build <span className="text-gradient-purple">serious digital products</span>, not just websites.
             </h1>
 
             {/* Sub-headline */}
-            <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
+            <p className="text-base sm:text-lg text-slate-200 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed drop-shadow-sm">
               {hero.subheadline}
             </p>
 
@@ -159,7 +197,7 @@ export default function HomePage() {
 
               <Link
                 href="/services"
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 font-semibold text-sm transition-all flex items-center justify-center gap-2 group"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 font-semibold text-sm transition-all flex items-center justify-center gap-2 group backdrop-blur-sm"
               >
                 {hero.secondaryCta || 'Explore Capabilities'}
                 <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 group-hover:text-white transition-all" />
@@ -167,18 +205,18 @@ export default function HomePage() {
             </div>
 
             {/* Business Outcomes Proof Bar */}
-            <div className="pt-6 border-t border-white/5 grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0 text-left">
+            <div className="pt-6 border-t border-white/10 grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0 text-left">
               <div>
-                <div className="text-xl sm:text-2xl font-bold font-display text-white">4 - 8 Wks</div>
-                <div className="text-[11px] text-slate-400">Rapid MVP Delivery</div>
+                <div className="text-xl sm:text-2xl font-bold font-display text-white drop-shadow-sm">4 - 8 Wks</div>
+                <div className="text-[11px] text-slate-300 font-medium">Rapid MVP Delivery</div>
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-bold font-display text-purple-400">99.9%</div>
-                <div className="text-[11px] text-slate-400">System Reliability SLA</div>
+                <div className="text-xl sm:text-2xl font-bold font-display text-purple-400 drop-shadow-sm">99.9%</div>
+                <div className="text-[11px] text-slate-300 font-medium">System Reliability SLA</div>
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-bold font-display text-white">100%</div>
-                <div className="text-[11px] text-slate-400">Full IP Ownership</div>
+                <div className="text-xl sm:text-2xl font-bold font-display text-white drop-shadow-sm">100%</div>
+                <div className="text-[11px] text-slate-300 font-medium">Full IP Ownership</div>
               </div>
             </div>
           </div>
