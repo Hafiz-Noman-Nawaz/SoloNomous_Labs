@@ -85,11 +85,11 @@ export default function AdminPortalPage() {
   const [authError, setAuthError] = useState<string | null>(null);
 
   // Auth Forms
-  const [loginEmail, setLoginEmail] = useState('nawaznoman7766@gmail.com');
+  const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
-  const [setupName, setSetupName] = useState('Noman Nawaz');
-  const [setupEmail, setSetupEmail] = useState('nawaznoman7766@gmail.com');
+  const [setupName, setSetupName] = useState('');
+  const [setupEmail, setSetupEmail] = useState('');
   const [setupPassword, setSetupPassword] = useState('');
   const [setupConfirmPassword, setSetupConfirmPassword] = useState('');
 
@@ -1216,7 +1216,7 @@ export default function AdminPortalPage() {
                 required
                 value={setupName}
                 onChange={(e) => setSetupName(e.target.value)}
-                placeholder="Enter executive name"
+                placeholder="e.g. Lead Architect / Director"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-hidden focus:border-purple-500"
               />
             </div>
@@ -1228,7 +1228,7 @@ export default function AdminPortalPage() {
                 required
                 value={setupEmail}
                 onChange={(e) => setSetupEmail(e.target.value)}
-                placeholder="Enter studio administrative email"
+                placeholder="admin@solonomouslabs.com"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-hidden focus:border-purple-500"
               />
             </div>
@@ -1315,7 +1315,7 @@ export default function AdminPortalPage() {
                 required
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                placeholder="Enter registered administrator email"
+                placeholder="admin@solonomouslabs.com"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-hidden focus:border-purple-500"
               />
             </div>
@@ -1327,7 +1327,7 @@ export default function AdminPortalPage() {
                 required
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
-                placeholder="Enter studio master password"
+                placeholder="••••••••••••"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-hidden focus:border-purple-500"
               />
             </div>

@@ -1,77 +1,10 @@
 import { Request, Response } from 'express';
 import { Package } from '../models/Package';
 
-const DEFAULT_PACKAGES = [
-  {
-    name: 'Focused Product Sprint',
-    slug: 'focused-product-sprint',
-    badge: 'Rapid Validation',
-    price: '$4,500',
-    originalPrice: '$5,000',
-    discountPercentage: 10,
-    discountText: 'Save 10%',
-    period: 'Starting fee / 2-3 Weeks',
-    description: 'Ideal for validating an architectural hypothesis, integrating custom RAG, or building a standalone microservice.',
-    deliverables: [
-      'Complete system architecture blueprint',
-      'Working production-ready service / feature',
-      'Automated unit & integration test suite',
-      'Full GitHub source transfer & documentation',
-      '30-day post-launch warranty'
-    ],
-    popular: false,
-    ctaText: 'Kickoff Sprint',
-    ctaLink: '/contact',
-    displayOrder: 1,
-    active: true
-  },
-  {
-    name: 'Full-Stack MVP Architecture',
-    slug: 'full-stack-mvp-architecture',
-    badge: 'Most Popular',
-    price: '$8,500',
-    originalPrice: '$10,000',
-    discountPercentage: 15,
-    discountText: 'Save $1,500',
-    period: 'Starting fee / 4-6 Weeks',
-    description: 'Turnkey SaaS or digital product MVP engineered from scratch with multi-tenancy, auth, and database architecture.',
-    deliverables: [
-      'Complete Next.js + Node.js full-stack system',
-      'Multi-tenant database schema & indexing',
-      'Turnkey Clerk authentication & RBAC roles',
-      'Production CI/CD deployment pipeline',
-      'Stripe billing / subscription integration',
-      '60-day post-launch operational SLA'
-    ],
-    popular: true,
-    ctaText: 'Deploy Platform MVP',
-    ctaLink: '/contact',
-    displayOrder: 2,
-    active: true
-  },
-  {
-    name: 'Dedicated Retainer & Scale',
-    slug: 'dedicated-retainer-and-scale',
-    badge: 'High Concurrency',
-    price: 'Custom',
-    originalPrice: '',
-    discountPercentage: 0,
-    discountText: '',
-    period: 'Monthly Retainer Sprints',
-    description: 'For venture-backed startups accelerating product roadmaps or requiring embedded principal systems architecture.',
-    deliverables: [
-      'Continuous sprint execution & feature rollout',
-      'Priority architectural review & chaos testing',
-      'Direct Slack/Discord engineer integration',
-      'Sub-4-hour emergency SLA response window',
-      'Weekly video demonstrations & retrospectives'
-    ],
-    popular: false,
-    ctaText: 'Discuss Retainer Scope',
-    ctaLink: '/contact',
-    displayOrder: 3,
-    active: true
-  }
+const PLACEHOLDER_SLUGS = [
+  'focused-product-sprint',
+  'full-stack-mvp-architecture',
+  'dedicated-retainer-and-scale'
 ];
 
 const parseDeliverablesHelper = (input: any): string[] => {
@@ -88,20 +21,13 @@ const parseDeliverablesHelper = (input: any): string[] => {
 };
 
 export class PackageController {
-  // Public: Get all active packages
+  // Public: Get all active packages added by the owner
   static async getPackages(req: Request, res: Response): Promise<void> {
     try {
-      let packages = await Package.find({ active: true }).sort({ displayOrder: 1, createdAt: 1 });
+      // Purge any legacy placeholder seed packages so only user-added packages show
+      await Package.deleteMany({ slug: { $in: PLACEHOLDER_SLUGS } });
 
-      if (!packages || packages.length === 0) {
-        // Auto-seed defaults if database is empty
-        const count = await Package.countDocuments();
-        if (count === 0) {
-          await Package.insertMany(DEFAULT_PACKAGES);
-          packages = await Package.find({ active: true }).sort({ displayOrder: 1, createdAt: 1 });
-        }
-      }
-
+      const packages = await Package.find({ active: true }).sort({ displayOrder: 1, createdAt: 1 });
       res.json({ success: true, data: packages });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message || 'Failed to fetch packages' });
@@ -111,13 +37,10 @@ export class PackageController {
   // Admin: Get all packages (including inactive)
   static async getAllPackagesAdmin(req: Request, res: Response): Promise<void> {
     try {
-      let packages = await Package.find().sort({ displayOrder: 1, createdAt: 1 });
+      // Purge any legacy placeholder seed packages
+      await Package.deleteMany({ slug: { $in: PLACEHOLDER_SLUGS } });
 
-      if (!packages || packages.length === 0) {
-        await Package.insertMany(DEFAULT_PACKAGES);
-        packages = await Package.find().sort({ displayOrder: 1, createdAt: 1 });
-      }
-
+      const packages = await Package.find().sort({ displayOrder: 1, createdAt: 1 });
       res.json({ success: true, data: packages });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message || 'Failed to fetch admin packages' });
