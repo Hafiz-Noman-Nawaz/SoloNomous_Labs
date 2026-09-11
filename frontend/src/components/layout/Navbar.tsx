@@ -185,7 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Brand Logo */}
           <div className="flex items-center">
-            <BrandLogo variant="auto" width={180} height={40} />
+            <BrandLogo variant="auto" width={205} height={46} />
           </div>
 
           {/* Desktop Navigation Links */}
@@ -520,7 +520,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
 
             <button
               onClick={onStartProject}
-              className="relative inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white text-sm font-semibold shadow-lg shadow-purple-900/30 hover:shadow-purple-700/40 border border-purple-400/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+              className="relative inline-flex items-center gap-2.5 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white text-sm font-semibold shadow-lg shadow-purple-900/30 hover:shadow-purple-700/40 border border-purple-400/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
             >
               <Rocket className="w-4 h-4 text-purple-200" />
               <span>Start a Project</span>
@@ -575,7 +575,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
             style={{ backgroundColor: isDark ? '#0B0A12' : '#FFFFFF' }}
           >
             <div className="flex items-center">
-              <BrandLogo variant="auto" width={160} height={36} />
+              <BrandLogo variant="auto" width={180} height={40} />
             </div>
 
             <div className="flex items-center gap-2">

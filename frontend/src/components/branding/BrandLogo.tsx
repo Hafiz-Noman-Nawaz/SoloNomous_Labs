@@ -18,8 +18,8 @@ interface BrandLogoProps {
 export const BrandLogo: React.FC<BrandLogoProps> = ({
   variant = 'auto',
   className = '',
-  width = 190,
-  height = 42,
+  width = 205,
+  height = 46,
   linkToHome = true,
   overrideSrc
 }) => {
@@ -85,7 +85,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         alt={BRANDING.companyName}
         width={width}
         height={height}
-        className="h-auto max-h-[46px] object-contain transition-transform duration-200 hover:scale-[1.02]"
+        className="h-auto max-h-[50px] object-contain transition-transform duration-200 hover:scale-[1.02]"
       />
     </div>
   );
