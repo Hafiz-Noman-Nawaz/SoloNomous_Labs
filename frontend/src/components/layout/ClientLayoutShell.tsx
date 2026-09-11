@@ -5,6 +5,7 @@ import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { CustomCursor } from './CustomCursor';
 import { AskSoloChatbot } from '../chat/AskSoloChatbot';
+import { FloatingWhatsAppWidget } from '../chat/FloatingWhatsAppWidget';
 import { StartProjectModal } from '../forms/StartProjectModal';
 import { ModalProvider, useModal } from '@/context/ModalContext';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
@@ -58,6 +59,7 @@ const ShellInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <Footer />
 
       <AskSoloChatbot onStartProject={() => openProjectModal()} />
+      <FloatingWhatsAppWidget />
 
       <StartProjectModal
         isOpen={isProjectModalOpen}

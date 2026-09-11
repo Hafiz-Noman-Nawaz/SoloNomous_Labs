@@ -33,6 +33,7 @@ import Aurora from '@/components/backgrounds/Aurora';
 import { useTheme } from '@/context/ThemeContext';
 import { ProjectCostEstimator } from '@/components/calculator/ProjectCostEstimator';
 import { AgencyComparison } from '@/components/home/AgencyComparison';
+import { LowRiskEntryOffers } from '@/components/home/LowRiskEntryOffers';
 
 export default function HomePage() {
   const { user, isSignedIn } = useUser();
@@ -548,7 +549,10 @@ export default function HomePage() {
       {/* 5.5 INTERACTIVE PROJECT SCOPE & INVESTMENT ESTIMATOR */}
       <ProjectCostEstimator />
 
-      {/* 5.6 WHY TECHNICAL FOUNDERS CHOOSE SOLONOMOUS (COMPARISON MATRIX) */}
+      {/* 5.6 ZERO-RISK DIAGNOSTIC ENTRY OFFERS */}
+      <LowRiskEntryOffers />
+
+      {/* 5.7 WHY TECHNICAL FOUNDERS CHOOSE SOLONOMOUS (COMPARISON MATRIX) */}
       <AgencyComparison />
 
       {/* 6. PILLAR ARTICLES */}

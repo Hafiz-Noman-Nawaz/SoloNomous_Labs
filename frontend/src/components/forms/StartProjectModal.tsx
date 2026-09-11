@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, ArrowRight, ArrowLeft, Loader2, Rocket, UserCheck, Lock, MessageSquare } from 'lucide-react';
+import { X, CheckCircle, ArrowRight, ArrowLeft, Loader2, Rocket, UserCheck, Lock, MessageSquare, Calendar, Video, Clock, ShieldCheck } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useUser, SignInButton } from '@clerk/nextjs';
 import { api } from '@/lib/api';
@@ -19,11 +19,19 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
   defaultService = ''
 }) => {
   const { user, isLoaded, isSignedIn } = useUser();
+  const [modalMode, setModalMode] = useState<'brief' | 'call'>('brief');
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [whatsappUrl, setWhatsappUrl] = useState('');
+
+  const [callData, setCallData] = useState({
+    topic: 'MVP Scoping & Architecture Review',
+    preferredTime: 'Earliest Available (Next 24 Hours)',
+    platform: 'Google Meet',
+    notes: ''
+  });
 
   const [formData, setFormData] = useState({
     serviceInterested: defaultService || 'Full-Stack Web Engineering',
@@ -137,6 +145,45 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
     }
   };
 
+  const handleScheduleCall = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.fullName || !formData.email) {
+      setError('Please provide your name and email to confirm the consultation.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await api.submitLead({
+        type: 'schedule_call',
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        company: formData.company,
+        serviceInterested: callData.topic,
+        projectDescription: `[15-Min Strategy Call Request] Topic: ${callData.topic} | Timeframe: ${callData.preferredTime} | Platform: ${callData.platform} | Notes: ${callData.notes || 'None'}`,
+        source: 'schedule_call_modal'
+      });
+
+      if (res.data?.whatsappDirectUrl) {
+        setWhatsappUrl(res.data.whatsappDirectUrl);
+      }
+
+      setSubmitted(true);
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.6 }
+      });
+    } catch (err: any) {
+      setError(err.message || 'Failed to schedule call. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const resetAndClose = () => {
     setSubmitted(false);
     setWhatsappUrl('');
@@ -183,9 +230,19 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
               <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-400">
                 <CheckCircle className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-bold font-display text-white mb-2">Service Order & Brief Dispatched!</h3>
+              <h3 className="text-2xl font-bold font-display text-white mb-2">
+                {modalMode === 'call' ? '15-Minute Strategy Call Requested!' : 'Service Order & Brief Dispatched!'}
+              </h3>
               <p className="text-slate-300 max-w-md mx-auto mb-6 text-sm leading-relaxed">
-                Your order for <strong className="text-purple-300">{formData.serviceInterested}</strong> has reached our engineering team via <strong>Email</strong> and <strong>WhatsApp</strong> alert. We will review your technical requirements promptly.
+                {modalMode === 'call' ? (
+                  <>
+                    Lead architect <strong className="text-purple-300">Noman Nawaz</strong> has received your consultation booking for <strong className="text-white">{callData.topic}</strong>. We will confirm your calendar slot and meeting link shortly.
+                  </>
+                ) : (
+                  <>
+                    Your order for <strong className="text-purple-300">{formData.serviceInterested}</strong> has reached our engineering team via <strong>Email</strong> and <strong>WhatsApp</strong> alert. We will review your technical requirements promptly.
+                  </>
+                )}
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 {whatsappUrl && (
@@ -209,21 +266,36 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
             </div>
           ) : (
             <div>
-              {/* Header */}
-              <div className="mb-6">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-medium mb-2">
-                  <Rocket className="w-3.5 h-3.5" /> Start an Engineering Engagement
-                </div>
-                <h2 className="text-xl sm:text-2xl font-bold font-display text-white">
-                  Step {step} of 3: {step === 1 ? 'Select Capability & Scope' : step === 2 ? 'Budget & Timeline' : 'Your Information & Brief'}
-                </h2>
-                {/* Progress bar */}
-                <div className="w-full bg-white/5 h-1.5 rounded-full mt-3 overflow-hidden">
-                  <div
-                    className="bg-purple-600 h-full transition-all duration-300"
-                    style={{ width: `${(step / 3) * 100}%` }}
-                  />
-                </div>
+              {/* Engagement Mode Switcher: Brief vs 1-Click Call */}
+              <div className="flex rounded-xl bg-white/5 p-1 border border-white/10 mb-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalMode('brief');
+                    setError('');
+                  }}
+                  className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    modalMode === 'brief'
+                      ? 'bg-purple-600 text-white shadow-md shadow-purple-900/30'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Rocket className="w-3.5 h-3.5" /> Submit Project Brief
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalMode('call');
+                    setError('');
+                  }}
+                  className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    modalMode === 'call'
+                      ? 'bg-purple-600 text-white shadow-md shadow-purple-900/30'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Calendar className="w-3.5 h-3.5" /> Book 15-Min Scoping Call
+                </button>
               </div>
 
               {error && (
@@ -231,6 +303,152 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
                   {error}
                 </div>
               )}
+
+              {modalMode === 'call' ? (
+                /* 1-Click Meeting Scheduler */
+                <form onSubmit={handleScheduleCall} className="space-y-4">
+                  <div className="p-3.5 rounded-2xl bg-purple-950/20 border border-purple-500/30 flex items-start gap-3">
+                    <div className="p-2 rounded-xl bg-purple-600/20 text-purple-300 shrink-0 mt-0.5">
+                      <Clock className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-white mb-0.5">
+                        Direct 1-on-1 Consultation with Lead Architect Noman Nawaz
+                      </h4>
+                      <p className="text-[11px] text-slate-300 leading-relaxed">
+                        30 minutes dedicated to your technical vision, architecture feasibility, and milestone pricing. Zero sales pressure.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">Your Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        placeholder="Dr. Alexander Vance"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs sm:text-sm focus:outline-hidden focus:border-purple-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">Email Address *</label>
+                      <input
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="alexander@company.com"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs sm:text-sm focus:outline-hidden focus:border-purple-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">WhatsApp / Phone (For Meeting Reminder)</label>
+                      <input
+                        type="text"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        placeholder="+1 (555) 000-0000"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs sm:text-sm focus:outline-hidden focus:border-purple-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">Preferred Meeting Platform</label>
+                      <select
+                        value={callData.platform}
+                        onChange={(e) => setCallData({ ...callData, platform: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#1a1926] border border-white/10 text-white text-xs sm:text-sm focus:outline-hidden focus:border-purple-500"
+                      >
+                        <option value="Google Meet">Google Meet (Link emailed)</option>
+                        <option value="WhatsApp Video/Call">WhatsApp Audio / Video Call</option>
+                        <option value="Zoom">Zoom Meeting</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">Preferred Timeframe</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        'Next 24 Hours',
+                        'Within 3 Days',
+                        'Next Week / Flexible'
+                      ].map((tf) => (
+                        <button
+                          key={tf}
+                          type="button"
+                          onClick={() => setCallData({ ...callData, preferredTime: tf })}
+                          className={`p-2.5 text-center rounded-xl border text-[11px] font-medium transition-all cursor-pointer ${
+                            callData.preferredTime === tf
+                              ? 'bg-purple-600/20 border-purple-500 text-white ring-1 ring-purple-500'
+                              : 'bg-white/[0.02] border-white/5 text-slate-400 hover:border-white/20'
+                          }`}
+                        >
+                          {tf}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">What would you like to discuss?</label>
+                    <input
+                      type="text"
+                      value={callData.notes}
+                      onChange={(e) => setCallData({ ...callData, notes: e.target.value })}
+                      placeholder="e.g. Building an AI MVP for real estate, need timeline & pricing..."
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs sm:text-sm focus:outline-hidden focus:border-purple-500"
+                    />
+                  </div>
+
+                  {/* Reassurance */}
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                    <span className="flex items-center gap-1 text-purple-300">
+                      <ShieldCheck className="w-3.5 h-3.5" /> Mutual NDA Covered
+                    </span>
+                    <span>15–30 Min Strategy Discovery</span>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-xs sm:text-sm transition-all shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 cursor-pointer mt-2"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Scheduling Session...
+                      </>
+                    ) : (
+                      <>
+                        <Calendar className="w-4 h-4" /> Confirm 15-Minute Strategy Call
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                /* 3-Step Brief Form */
+                <>
+                  {/* Header */}
+                  <div className="mb-6">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-medium mb-2">
+                      <Rocket className="w-3.5 h-3.5" /> Start an Engineering Engagement
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-bold font-display text-white">
+                      Step {step} of 3: {step === 1 ? 'Select Capability & Scope' : step === 2 ? 'Budget & Timeline' : 'Your Information & Brief'}
+                    </h2>
+                    {/* Progress bar */}
+                    <div className="w-full bg-white/5 h-1.5 rounded-full mt-3 overflow-hidden">
+                      <div
+                        className="bg-purple-600 h-full transition-all duration-300"
+                        style={{ width: `${(step / 3) * 100}%` }}
+                      />
+                    </div>
+                  </div>
 
               {/* Step 1: Capability & Project Nature */}
               {step === 1 && (
@@ -491,8 +709,10 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
                   </div>
                 </form>
               )}
-            </div>
+            </>
           )}
+        </div>
+      )}
         </motion.div>
       </div>
     </AnimatePresence>

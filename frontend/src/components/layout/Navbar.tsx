@@ -497,8 +497,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
             </SignedOut>
 
             <SignedIn>
+              <Link
+                href="/portal"
+                className={`h-[38px] px-3 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-1.5 border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs shrink-0 ${
+                  isDark
+                    ? 'bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 hover:text-white border-purple-500/30'
+                    : 'bg-purple-100 hover:bg-purple-200 text-purple-900 border-purple-300'
+                }`}
+                title="Open Client Milestone & Sprint Portal"
+              >
+                <Rocket className="w-3.5 h-3.5 text-purple-400" />
+                <span>Portal</span>
+              </Link>
               <div
-                className={`h-[38px] px-2.5 rounded-xl border inline-flex items-center justify-center shrink-0 ${
+                className={`h-[38px] px-2 rounded-xl border inline-flex items-center justify-center shrink-0 ${
                   isDark ? 'bg-white/[0.04] border-white/10' : 'bg-slate-100 border-slate-300'
                 }`}
               >
@@ -801,18 +813,27 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
 
               <SignedIn>
                 <div
-                  className={`flex items-center justify-between p-3.5 rounded-xl border ${
+                  className={`p-3.5 rounded-xl border space-y-3 ${
                     isDark ? 'bg-white/[0.04] border-white/10' : 'bg-slate-100 border-slate-300'
                   }`}
                 >
-                  <span
-                    className={`text-xs font-semibold ${
-                      isDark ? 'text-slate-300' : 'text-slate-700'
-                    }`}
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`text-xs font-semibold ${
+                        isDark ? 'text-slate-300' : 'text-slate-700'
+                      }`}
+                    >
+                      Client Account Active
+                    </span>
+                    <UserButton afterSignOutUrl="/" />
+                  </div>
+                  <Link
+                    href="/portal"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors"
                   >
-                    Client Account Active
-                  </span>
-                  <UserButton afterSignOutUrl="/" />
+                    <Rocket className="w-3.5 h-3.5" /> Open Client Milestone Portal
+                  </Link>
                 </div>
               </SignedIn>
 
