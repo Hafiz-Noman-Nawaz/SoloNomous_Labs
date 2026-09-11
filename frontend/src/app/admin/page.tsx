@@ -2509,10 +2509,120 @@ export default function AdminPortalPage() {
                     type="text"
                     value={settings.contactPhone}
                     onChange={(e) => setSettings({ ...settings, contactPhone: e.target.value })}
-                    placeholder="+1 (555) 019-8234"
+                    placeholder="+92 315 6251281"
                     className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
                   />
                   <span className="text-[10px] text-slate-400 mt-1 block">Public support phone line</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Studio Location / Working Base</label>
+                  <input
+                    type="text"
+                    value={settings.officeAddress || ''}
+                    onChange={(e) => setSettings({ ...settings, officeAddress: e.target.value })}
+                    placeholder="Pakistan — Available Worldwide / Remote"
+                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-1 block">Displayed in footer and contact channels</span>
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Typical Response Time Notice</label>
+                  <input
+                    type="text"
+                    value={settings.responseTimeNotice || ''}
+                    onChange={(e) => setSettings({ ...settings, responseTimeNotice: e.target.value })}
+                    placeholder="Typical response within 2-4 business hours"
+                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-1 block">Displayed on contact brief and kickoff pages</span>
+                </div>
+              </div>
+            </div>
+
+            {/* SECTION E: SOCIAL & PROFILE LINKS */}
+            <div className="glass-card p-6 sm:p-8 rounded-3xl border border-white/10 space-y-4 text-xs">
+              <h3 className="text-base font-bold font-display text-white">Social & External Profiles</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">GitHub URL</label>
+                  <input
+                    type="url"
+                    value={settings.socialLinks?.github || ''}
+                    onChange={(e) => setSettings({
+                      ...settings,
+                      socialLinks: { ...(settings.socialLinks || {}), github: e.target.value }
+                    })}
+                    placeholder="https://github.com/Hafiz-Noman-Nawaz"
+                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Founder Portfolio URL</label>
+                  <input
+                    type="url"
+                    value={settings.socialLinks?.portfolio || ''}
+                    onChange={(e) => setSettings({
+                      ...settings,
+                      socialLinks: { ...(settings.socialLinks || {}), portfolio: e.target.value }
+                    })}
+                    placeholder="https://www.nouman-nawaz.dev/"
+                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Fiverr Profile / Gig URL</label>
+                  <input
+                    type="url"
+                    value={settings.socialLinks?.fiverr || ''}
+                    onChange={(e) => setSettings({
+                      ...settings,
+                      socialLinks: { ...(settings.socialLinks || {}), fiverr: e.target.value }
+                    })}
+                    placeholder="https://www.fiverr.com/nomannawaz67"
+                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">LinkedIn URL</label>
+                  <input
+                    type="url"
+                    value={settings.socialLinks?.linkedin || ''}
+                    onChange={(e) => setSettings({
+                      ...settings,
+                      socialLinks: { ...(settings.socialLinks || {}), linkedin: e.target.value }
+                    })}
+                    placeholder="https://linkedin.com/in/..."
+                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Twitter / X URL</label>
+                  <input
+                    type="url"
+                    value={settings.socialLinks?.xTwitter || ''}
+                    onChange={(e) => setSettings({
+                      ...settings,
+                      socialLinks: { ...(settings.socialLinks || {}), xTwitter: e.target.value }
+                    })}
+                    placeholder="https://x.com/..."
+                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Instagram URL</label>
+                  <input
+                    type="url"
+                    value={settings.socialLinks?.instagram || ''}
+                    onChange={(e) => setSettings({
+                      ...settings,
+                      socialLinks: { ...(settings.socialLinks || {}), instagram: e.target.value }
+                    })}
+                    placeholder="https://instagram.com/..."
+                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
                 </div>
               </div>
             </div>

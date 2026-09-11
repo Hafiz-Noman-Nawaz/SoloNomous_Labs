@@ -164,6 +164,8 @@ export interface SiteSettings {
     xTwitter?: string;
     instagram?: string;
     youtube?: string;
+    portfolio?: string;
+    fiverr?: string;
   };
   bannerNotification?: {
     enabled: boolean;

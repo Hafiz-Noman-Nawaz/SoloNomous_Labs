@@ -8,6 +8,7 @@ import { AskSoloChatbot } from '../chat/AskSoloChatbot';
 import { StartProjectModal } from '../forms/StartProjectModal';
 import { ModalProvider, useModal } from '@/context/ModalContext';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
+import { SettingsProvider } from '@/context/SettingsContext';
 
 const ShellInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isProjectModalOpen, selectedService, openProjectModal, closeProjectModal } = useModal();
@@ -44,9 +45,11 @@ const ShellInner: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 export const ClientLayoutShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <ThemeProvider>
-      <ModalProvider>
-        <ShellInner>{children}</ShellInner>
-      </ModalProvider>
+      <SettingsProvider>
+        <ModalProvider>
+          <ShellInner>{children}</ShellInner>
+        </ModalProvider>
+      </SettingsProvider>
     </ThemeProvider>
   );
 };

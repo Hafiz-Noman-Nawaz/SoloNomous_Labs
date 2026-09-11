@@ -4,8 +4,10 @@ import React, { useState } from 'react';
 import { api } from '@/lib/api';
 import { Mail, Phone, MessageSquare, Clock, MapPin, CheckCircle, Loader2, Send } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function ContactPage() {
+  const { settings } = useSettings();
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -19,14 +21,22 @@ export default function ContactPage() {
   const [error, setError] = useState('');
   const [whatsappUrl, setWhatsappUrl] = useState('');
 
+  const contactEmail = settings?.contactEmail || 'solonomouslabs@gmail.com';
+  const contactPhone = settings?.contactPhone || '+92 315 6251281';
+  const phoneDigits = contactPhone.replace(/[^0-9+]/g, '');
+  const whatsappNumber = settings?.whatsappNumber || contactPhone;
+  const whatsappDigits = whatsappNumber.replace(/[^0-9]/g, '') || '923156251281';
+  const responseTimeNotice = settings?.responseTimeNotice || 'Typical engineer response within 4 business hours';
+  const officeAddress = settings?.officeAddress || 'Pakistan — Available Worldwide / Remote';
+
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const svc = params.get('service');
       if (svc) {
-        setForm(prev => ({
-          ...prev,
-          subject: `Service Order: ${svc}`,
+        setForm((f) => ({
+          ...f,
+          subject: `Service Inquiry: ${svc}`,
           message: `Hello SoloNomous team, I would like to order and get started with your service: "${svc}". Please contact me with delivery schedule and technical kickoff details.`
         }));
       }
@@ -36,7 +46,7 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) {
-      setError('Please fill in your name, email, and message.');
+      setError('Please fill in all required fields.');
       return;
     }
 
@@ -52,9 +62,9 @@ export default function ContactPage() {
         setWhatsappUrl(res.data.whatsappDirectUrl);
       }
       setSubmitted(true);
-      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
     } catch (err: any) {
-      setError(err.message || 'Failed to submit message. Please try again.');
+      setError(err.message || 'Failed to submit inquiry. Please try again or reach out on WhatsApp.');
     } finally {
       setLoading(false);
     }
@@ -65,7 +75,7 @@ export default function ContactPage() {
       {/* Header */}
       <div className="max-w-3xl mb-16">
         <span className="text-xs font-bold uppercase tracking-widest text-purple-400">
-          Direct Communication
+          Direct Engineering Inquiry
         </span>
         <h1 className="text-4xl sm:text-5xl font-extrabold font-display text-white tracking-tight leading-tight mt-2">
           Connect With Our <span className="text-gradient-purple">Systems Architects</span>.
@@ -83,7 +93,7 @@ export default function ContactPage() {
 
             <div className="space-y-4">
               <a
-                href="mailto:contact@solonomouslabs.com"
+                href={`mailto:${contactEmail}`}
                 className="flex items-start gap-3.5 p-3 rounded-2xl hover:bg-white/5 transition-colors group"
               >
                 <div className="p-2.5 rounded-xl bg-purple-600/20 text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors">
@@ -92,13 +102,13 @@ export default function ContactPage() {
                 <div>
                   <div className="text-xs text-slate-400">Email Engineering Team</div>
                   <div className="text-sm font-semibold text-white group-hover:text-purple-300">
-                    contact@solonomouslabs.com
+                    {contactEmail}
                   </div>
                 </div>
               </a>
 
               <a
-                href="tel:+15550198234"
+                href={`tel:${phoneDigits}`}
                 className="flex items-start gap-3.5 p-3 rounded-2xl hover:bg-white/5 transition-colors group"
               >
                 <div className="p-2.5 rounded-xl bg-purple-600/20 text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors">
@@ -107,13 +117,13 @@ export default function ContactPage() {
                 <div>
                   <div className="text-xs text-slate-400">Direct Phone Line</div>
                   <div className="text-sm font-semibold text-white group-hover:text-purple-300">
-                    +1 (555) 019-8234
+                    {contactPhone}
                   </div>
                 </div>
               </a>
 
               <a
-                href="https://wa.me/15550198234"
+                href={`https://wa.me/${whatsappDigits}`}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-start gap-3.5 p-3 rounded-2xl hover:bg-white/5 transition-colors group"
@@ -124,7 +134,7 @@ export default function ContactPage() {
                 <div>
                   <div className="text-xs text-slate-400">WhatsApp Dispatch</div>
                   <div className="text-sm font-semibold text-white group-hover:text-emerald-300">
-                    +1 (555) 019-8234 (Instant)
+                    {whatsappNumber} (Instant)
                   </div>
                 </div>
               </a>
@@ -132,12 +142,12 @@ export default function ContactPage() {
 
             <div className="pt-4 border-t border-white/5 space-y-2">
               <div className="flex items-center gap-2 text-xs text-slate-300">
-                <Clock className="w-4 h-4 text-purple-400" />
-                <span>Typical response time: <strong>under 4 business hours</strong></span>
+                <Clock className="w-4 h-4 text-purple-400 shrink-0" />
+                <span>{responseTimeNotice}</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-400">
-                <MapPin className="w-4 h-4 text-purple-400" />
-                <span>Remote-First Studio • Silicon Valley / Global</span>
+                <MapPin className="w-4 h-4 text-purple-400 shrink-0" />
+                <span>{officeAddress}</span>
               </div>
             </div>
           </div>

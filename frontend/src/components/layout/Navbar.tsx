@@ -22,6 +22,7 @@ import {
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { useTheme } from '@/context/ThemeContext';
+import { useSettings } from '@/context/SettingsContext';
 import { api } from '@/lib/api';
 import { Service, ServiceCategory } from '@/types';
 
@@ -64,9 +65,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
   const [activeCategorySlug, setActiveCategorySlug] = useState<string>('web-product');
 
   const { theme } = useTheme();
+  const { settings } = useSettings();
   const isDark = theme === 'dark';
   const pathname = usePathname();
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const whatsappNumber = settings?.whatsappNumber || settings?.contactPhone || '+92 315 6251281';
+  const whatsappDigits = whatsappNumber.replace(/[^0-9]/g, '') || '923156251281';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -810,7 +815,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
                   isDark ? 'text-slate-400' : 'text-slate-500'
                 }`}
               >
-                Direct WhatsApp: +92 315 6251281
+                <a
+                  href={`https://wa.me/${whatsappDigits}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-purple-400 transition-colors inline-block"
+                >
+                  Direct WhatsApp: {whatsappNumber}
+                </a>
               </div>
             </div>
           </div>

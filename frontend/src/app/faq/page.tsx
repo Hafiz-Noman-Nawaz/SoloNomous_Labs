@@ -4,8 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { FAQ } from '@/types';
 import { ChevronDown, Search, HelpCircle, MessageSquare } from 'lucide-react';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function FAQPage() {
+  const { settings } = useSettings();
+  const contactEmail = settings?.contactEmail || 'solonomouslabs@gmail.com';
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [category, setCategory] = useState<string>('all');
   const [search, setSearch] = useState('');
@@ -139,11 +142,11 @@ export default function FAQPage() {
           <div className="text-left">
             <h4 className="text-base font-bold text-white">Still have questions?</h4>
             <p className="text-xs text-slate-400 mt-0.5">
-              Chat with our AI assistant &ldquo;Ask Solo&rdquo; or email contact@solonomouslabs.com.
+              Chat with our AI assistant &ldquo;Ask Solo&rdquo; or email {contactEmail}.
             </p>
           </div>
           <a
-            href="mailto:contact@solonomouslabs.com"
+            href={`mailto:${contactEmail}`}
             className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition-colors shrink-0"
           >
             Email Principal Architect

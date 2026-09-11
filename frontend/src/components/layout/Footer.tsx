@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { BrandLogo } from '../branding/BrandLogo';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { api } from '@/lib/api';
+import { useSettings } from '@/context/SettingsContext';
 import {
   ArrowRight,
   Github,
@@ -20,10 +21,23 @@ import {
 } from 'lucide-react';
 
 export const Footer: React.FC = () => {
+  const { settings } = useSettings();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
   const [error, setError] = useState('');
+
+  const contactEmail = settings?.contactEmail || 'solonomouslabs@gmail.com';
+  const contactPhone = settings?.contactPhone || '+92 315 6251281';
+  const whatsappNumber = settings?.whatsappNumber || contactPhone;
+  const whatsappDigits = whatsappNumber.replace(/[^0-9]/g, '') || '923156251281';
+  const officeAddress = settings?.officeAddress || 'Pakistan — Available Worldwide / Remote';
+  const companyName = settings?.companyName || 'SoloNomous Labs';
+  const brandTagline = settings?.brandTagline || 'An advanced software studio & technology laboratory. We engineer serious digital products, resilient SaaS architectures, and autonomous AI systems with experimental rigor.';
+
+  const githubUrl = settings?.socialLinks?.github || 'https://github.com/Hafiz-Noman-Nawaz';
+  const portfolioUrl = settings?.socialLinks?.portfolio || 'https://www.nouman-nawaz.dev/';
+  const fiverrUrl = settings?.socialLinks?.fiverr || 'https://www.fiverr.com/nomannawaz67';
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,35 +66,35 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-2 space-y-4">
             <BrandLogo variant="auto" width={190} height={42} />
             <p className="text-sm leading-relaxed text-slate-400 max-w-sm">
-              An advanced software studio & technology laboratory. We engineer serious digital products, resilient SaaS architectures, and autonomous AI systems with experimental rigor.
+              {brandTagline}
             </p>
             <div className="flex items-center gap-3 pt-2">
               <a
-                href="https://github.com/Hafiz-Noman-Nawaz/Noman_Nawaz"
+                href={githubUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="w-9 h-9 rounded-xl bg-white/5 hover:bg-purple-600/20 hover:text-purple-300 border border-white/5 flex items-center justify-center transition-colors"
                 aria-label="GitHub"
-                title="Noman Nawaz GitHub"
+                title="Founder GitHub"
               >
                 <Github className="w-4 h-4" />
               </a>
               <a
-                href="https://www.nouman-nawaz.dev/"
+                href={portfolioUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="px-3 py-1.5 rounded-xl bg-purple-600/10 hover:bg-purple-600/20 text-purple-300 hover:text-white border border-purple-500/30 text-xs font-semibold flex items-center gap-1.5 transition-colors"
-                title="Visit Noman Nawaz Personal Portfolio"
+                title="Visit Founder Personal Portfolio"
               >
                 <span>nouman-nawaz.dev</span>
                 <ArrowRight className="w-3 h-3" />
               </a>
               <a
-                href="https://www.fiverr.com/nomannawaz67"
+                href={fiverrUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5 transition-colors"
-                title="Noman Nawaz Fiverr Services"
+                title="Fiverr Services"
               >
                 <span>Fiverr</span>
               </a>
@@ -200,19 +214,24 @@ export const Footer: React.FC = () => {
             <div className="pt-4 text-xs space-y-1.5 text-slate-400">
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-purple-400" />
-                <a href="mailto:nawaznoman7766@gmail.com" className="hover:text-white">
-                  nawaznoman7766@gmail.com
+                <a href={`mailto:${contactEmail}`} className="hover:text-white transition-colors">
+                  {contactEmail}
                 </a>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-purple-400" />
-                <a href="https://wa.me/923156251281" target="_blank" rel="noreferrer" className="hover:text-white">
-                  +92 315 6251281 (WhatsApp)
+                <a
+                  href={`https://wa.me/${whatsappDigits}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  {whatsappNumber} (WhatsApp)
                 </a>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-purple-400" />
-                <span>Pakistan — Available Worldwide / Remote</span>
+                <span>{officeAddress}</span>
               </div>
             </div>
           </div>
@@ -221,7 +240,7 @@ export const Footer: React.FC = () => {
         {/* Bottom row: Legal & Copyright */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <div>
-            © {new Date().getFullYear()} SoloNomous Labs by Noman Nawaz. All rights reserved. Built with experimental rigor & production reliability.
+            © {new Date().getFullYear()} {companyName}. All rights reserved. Built with experimental rigor & production reliability.
           </div>
           <div className="flex items-center gap-6">
             <Link href="/faq" className="hover:text-slate-300 transition-colors">

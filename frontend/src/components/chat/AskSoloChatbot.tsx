@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Bot, User, ExternalLink, ArrowRight, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { useSettings } from '@/context/SettingsContext';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -13,6 +14,10 @@ interface Message {
 }
 
 export const AskSoloChatbot: React.FC<{ onStartProject?: () => void }> = ({ onStartProject }) => {
+  const { settings } = useSettings();
+  const contactEmail = settings?.contactEmail || 'solonomouslabs@gmail.com';
+  const whatsappNumber = settings?.whatsappNumber || settings?.contactPhone || '+92 315 6251281';
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -132,7 +137,7 @@ export const AskSoloChatbot: React.FC<{ onStartProject?: () => void }> = ({ onSt
               const last = updated[updated.length - 1];
               if (last && last.role === 'assistant') {
                 last.content =
-                  'I am momentarily unable to process this request. You can reach Noman Nawaz directly on WhatsApp at +92 315 6251281 or via email at nawaznoman7766@gmail.com.';
+                  `I am momentarily unable to process this request. You can reach our engineering team directly on WhatsApp at ${whatsappNumber} or via email at ${contactEmail}.`;
               }
               return updated;
             });
