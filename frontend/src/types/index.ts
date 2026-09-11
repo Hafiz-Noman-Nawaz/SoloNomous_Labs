@@ -38,6 +38,8 @@ export interface CaseStudy {
   clientName: string;
   industry: string;
   duration: string;
+  startDate?: string;
+  endDate?: string;
   heroImage: { url: string; altText?: string };
   overview: string;
   challenge: string;

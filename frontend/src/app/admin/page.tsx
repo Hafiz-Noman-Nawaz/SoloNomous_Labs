@@ -32,7 +32,9 @@ import {
   X,
   Eye,
   MessageSquare,
-  Star
+  Star,
+  Calendar,
+  Code2
 } from 'lucide-react';
 import { SiteSettings } from '@/types';
 import { CloudinaryUploadWidget } from '@/components/ui/CloudinaryUploadWidget';
@@ -166,6 +168,9 @@ export default function AdminPortalPage() {
     slug: '',
     client: '',
     industry: 'Enterprise Technology',
+    startDate: '',
+    endDate: '',
+    techStack: '',
     overview: '',
     challenge: '',
     solution: '',
@@ -582,6 +587,9 @@ export default function AdminPortalPage() {
       slug: '',
       client: '',
       industry: 'FinTech / High-Throughput',
+      startDate: '',
+      endDate: '',
+      techStack: 'Next.js 14, React 19, TypeScript, MongoDB Atlas',
       overview: '',
       challenge: '',
       solution: '',
@@ -597,13 +605,16 @@ export default function AdminPortalPage() {
       _id: cs._id,
       title: cs.title,
       slug: cs.slug,
-      client: cs.client || '',
+      client: cs.clientName || cs.client || '',
       industry: cs.industry || 'Technology',
+      startDate: cs.startDate || '',
+      endDate: cs.endDate || '',
+      techStack: Array.isArray(cs.techStack) ? cs.techStack.join(', ') : (cs.techStack || ''),
       overview: cs.overview || '',
       challenge: cs.challenge || '',
-      solution: cs.solution || '',
-      resultsMetric: cs.metrics?.[0]?.value || '99.99% Reliability',
-      featuredImage: cs.featuredImage?.url || cs.featuredImage || ''
+      solution: cs.strategy || cs.solution || '',
+      resultsMetric: cs.results?.[0]?.metric ? `${cs.results[0].metric} ${cs.results[0].label || ''}` : (cs.metrics?.[0]?.value || '99.99% Reliability'),
+      featuredImage: cs.heroImage?.url || (typeof cs.featuredImage === 'string' ? cs.featuredImage : cs.featuredImage?.url) || ''
     });
     setShowCaseStudyModal(true);
   };
@@ -611,17 +622,35 @@ export default function AdminPortalPage() {
   const handleSaveCaseStudy = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const techStackArray = caseStudyForm.techStack
+        ? caseStudyForm.techStack.split(',').map((s) => s.trim()).filter(Boolean)
+        : [];
+
+      const duration = caseStudyForm.startDate
+        ? `${caseStudyForm.startDate} – ${caseStudyForm.endDate || 'Present'}`
+        : '8 Weeks';
+
       const payload = {
         title: caseStudyForm.title,
         slug: caseStudyForm.slug || caseStudyForm.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        clientName: caseStudyForm.client || 'Enterprise Partner',
         client: caseStudyForm.client || 'Enterprise Partner',
         industry: caseStudyForm.industry,
+        startDate: caseStudyForm.startDate,
+        endDate: caseStudyForm.endDate,
+        duration,
+        techStack: techStackArray,
         overview: caseStudyForm.overview,
         challenge: caseStudyForm.challenge || caseStudyForm.overview,
+        strategy: caseStudyForm.solution || caseStudyForm.overview,
         solution: caseStudyForm.solution || caseStudyForm.overview,
-        metrics: [{ label: 'Performance Gain', value: caseStudyForm.resultsMetric }],
-        featuredImage: { url: caseStudyForm.featuredImage },
+        architectureDetails: caseStudyForm.solution || caseStudyForm.overview,
+        results: [{ metric: caseStudyForm.resultsMetric || '10x', label: 'Outcome' }],
+        metrics: [{ label: 'Outcome', value: caseStudyForm.resultsMetric || '10x' }],
+        heroImage: { url: caseStudyForm.featuredImage },
+        featuredImage: caseStudyForm.featuredImage,
         featured: true,
+        published: true,
         active: true
       };
 
@@ -1691,36 +1720,74 @@ export default function AdminPortalPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {caseStudies.map((cs) => (
-                <div key={cs._id} className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3 flex flex-col justify-between">
-                  <div>
-                    <div className="text-[10px] font-semibold text-purple-400 uppercase tracking-wider">{cs.industry}</div>
-                    <h4 className="text-sm font-bold text-white mt-1">{cs.title}</h4>
-                    <p className="text-xs text-slate-400 line-clamp-3 mt-1.5 leading-relaxed">{cs.overview}</p>
-                    {cs.metrics?.[0] && (
-                      <div className="mt-3 p-2 rounded-xl bg-purple-950/20 border border-purple-500/20 text-purple-300 text-xs font-mono">
-                        {cs.metrics[0].label}: <strong>{cs.metrics[0].value}</strong>
-                      </div>
-                    )}
-                  </div>
+              {caseStudies.map((cs) => {
+                const imgUrl = cs.heroImage?.url || (typeof cs.featuredImage === 'string' ? cs.featuredImage : cs.featuredImage?.url);
+                const timeline = cs.startDate ? `${cs.startDate} – ${cs.endDate || 'Present'}` : cs.duration;
+                return (
+                  <div key={cs._id} className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3 flex flex-col justify-between group hover:border-purple-500/30 transition-all">
+                    <div>
+                      {imgUrl && (
+                        <div className="relative h-36 w-full rounded-xl overflow-hidden bg-black/40 mb-3 border border-white/5">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={imgUrl} alt={cs.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-[10px] font-semibold text-purple-300 border border-white/10">
+                            {cs.industry}
+                          </div>
+                        </div>
+                      )}
+                      {!imgUrl && (
+                        <div className="text-[10px] font-semibold text-purple-400 uppercase tracking-wider">{cs.industry}</div>
+                      )}
+                      <h4 className="text-sm font-bold text-white mt-1">{cs.title}</h4>
+                      
+                      {timeline && (
+                        <div className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-1">
+                          <Calendar className="w-3 h-3 text-purple-400" />
+                          <span>{timeline}</span>
+                        </div>
+                      )}
 
-                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
-                    <button
-                      onClick={() => handleOpenEditCaseStudy(cs)}
-                      className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-purple-600 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" /> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCaseStudy(cs._id, cs.title)}
-                      className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-slate-400 transition-colors cursor-pointer"
-                      title="Delete Case Study"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                      <p className="text-xs text-slate-400 line-clamp-2 mt-1.5 leading-relaxed">{cs.overview}</p>
+
+                      {/* Tech stack badges */}
+                      {cs.techStack && cs.techStack.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2.5">
+                          {cs.techStack.slice(0, 4).map((tech: string) => (
+                            <span key={tech} className="px-1.5 py-0.5 rounded-md bg-white/5 border border-white/5 text-[10px] font-mono text-purple-300">
+                              {tech}
+                            </span>
+                          ))}
+                          {cs.techStack.length > 4 && (
+                            <span className="text-[10px] text-slate-500">+{cs.techStack.length - 4}</span>
+                          )}
+                        </div>
+                      )}
+
+                      {cs.results?.[0] && (
+                        <div className="mt-2.5 p-2 rounded-xl bg-purple-950/20 border border-purple-500/20 text-purple-300 text-xs font-mono">
+                          {cs.results[0].label}: <strong>{cs.results[0].metric}</strong>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+                      <button
+                        onClick={() => handleOpenEditCaseStudy(cs)}
+                        className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-purple-600 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" /> Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCaseStudy(cs._id, cs.title)}
+                        className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-slate-400 transition-colors cursor-pointer"
+                        title="Delete Case Study"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -2488,7 +2555,7 @@ export default function AdminPortalPage() {
         {/* ======================================================== */}
         {showCaseStudyModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-            <div className="bg-[#12111A] border border-white/10 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl">
+            <div className="bg-[#12111A] border border-white/10 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-4 shadow-2xl custom-scrollbar">
               <div className="flex items-center justify-between pb-2 border-b border-white/10">
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <Briefcase className="w-4 h-4 text-purple-400" />
@@ -2497,7 +2564,7 @@ export default function AdminPortalPage() {
                 <button onClick={() => setShowCaseStudyModal(false)} className="text-slate-400 hover:text-white text-xs">✕</button>
               </div>
 
-              <form onSubmit={handleSaveCaseStudy} className="space-y-3 text-xs">
+              <form onSubmit={handleSaveCaseStudy} className="space-y-4 text-xs">
                 <div>
                   <label className="block text-slate-300 font-semibold mb-1">Project / Case Study Title *</label>
                   <input
@@ -2506,11 +2573,11 @@ export default function AdminPortalPage() {
                     value={caseStudyForm.title}
                     onChange={(e) => setCaseStudyForm({ ...caseStudyForm, title: e.target.value })}
                     placeholder="Autonomous Multi-Agent Intelligence Engine"
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-slate-300 font-semibold mb-1">Client / Partner Name</label>
                     <input
@@ -2518,7 +2585,7 @@ export default function AdminPortalPage() {
                       value={caseStudyForm.client}
                       onChange={(e) => setCaseStudyForm({ ...caseStudyForm, client: e.target.value })}
                       placeholder="Synthetix Labs"
-                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
                     />
                   </div>
                   <div>
@@ -2528,9 +2595,88 @@ export default function AdminPortalPage() {
                       value={caseStudyForm.industry}
                       onChange={(e) => setCaseStudyForm({ ...caseStudyForm, industry: e.target.value })}
                       placeholder="Enterprise AI / SaaS"
-                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
                     />
                   </div>
+                </div>
+
+                {/* PROJECT START & END DATES */}
+                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-300 font-semibold flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-purple-400" />
+                      Project Timeline (Start & End Dates)
+                    </span>
+                    <span className="text-[10px] text-slate-500">Displays on public site</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-slate-400 text-[11px] mb-1">Start Date</label>
+                      <input
+                        type="text"
+                        value={caseStudyForm.startDate}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, startDate: e.target.value })}
+                        placeholder="e.g. Jan 2024 or 2024-01-15"
+                        className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 text-[11px] mb-1">End Date / Status</label>
+                      <input
+                        type="text"
+                        value={caseStudyForm.endDate}
+                        onChange={(e) => setCaseStudyForm({ ...caseStudyForm, endDate: e.target.value })}
+                        placeholder="e.g. Present or Aug 2024"
+                        className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                      />
+                    </div>
+                  </div>
+                  {(caseStudyForm.startDate || caseStudyForm.endDate) && (
+                    <div className="text-[11px] text-purple-300 flex items-center gap-2 pt-1 border-t border-white/5">
+                      <span className="text-slate-400 font-medium">Timeline Badge Preview:</span>
+                      <span className="font-mono bg-purple-950/70 border border-purple-500/30 px-2.5 py-0.5 rounded text-purple-200">
+                        {caseStudyForm.startDate || 'Started'} – {caseStudyForm.endDate || 'Present'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* TECH STACK SECTION */}
+                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-slate-300 font-semibold flex items-center gap-1.5">
+                      <Code2 className="w-3.5 h-3.5 text-purple-400" />
+                      Project Tech Stack
+                    </label>
+                    <span className="text-[10px] text-slate-500">Comma-separated</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={caseStudyForm.techStack}
+                    onChange={(e) => setCaseStudyForm({ ...caseStudyForm, techStack: e.target.value })}
+                    placeholder="Next.js 14, React 19, TypeScript, MongoDB Atlas, Docker, Redis"
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                  {caseStudyForm.techStack ? (
+                    <div className="space-y-1 pt-1">
+                      <div className="text-[10px] text-slate-400">Live Badges Preview:</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {caseStudyForm.techStack.split(',').map((tech, idx) => tech.trim() ? (
+                          <span
+                            key={idx}
+                            className="px-2 py-0.5 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-200 text-[10px] font-mono flex items-center gap-1"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                            {tech.trim()}
+                          </span>
+                        ) : null)}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-slate-500 italic">
+                      Type technologies separated by commas. These will render dynamically on the public project cards.
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -2541,7 +2687,7 @@ export default function AdminPortalPage() {
                     value={caseStudyForm.overview}
                     onChange={(e) => setCaseStudyForm({ ...caseStudyForm, overview: e.target.value })}
                     placeholder="High-level engineering overview of the system..."
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white resize-none"
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white resize-none placeholder-slate-500 focus:outline-none focus:border-purple-500"
                   />
                 </div>
 
@@ -2552,20 +2698,81 @@ export default function AdminPortalPage() {
                     value={caseStudyForm.resultsMetric}
                     onChange={(e) => setCaseStudyForm({ ...caseStudyForm, resultsMetric: e.target.value })}
                     placeholder="99.99% Uptime, 10x Latency Reduction"
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Cover Image (Cloudinary)</label>
-                  <CloudinaryUploadWidget
-                    folder="solonomous-labs/case-studies"
-                    currentUrl={caseStudyForm.featuredImage}
-                    onUploadSuccess={(url) => setCaseStudyForm({ ...caseStudyForm, featuredImage: url })}
-                  />
+                {/* COVER IMAGE UPLOAD & LIVE PREVIEW */}
+                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/10 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-slate-300 font-semibold flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-purple-400" />
+                      Cover Image (Preview & Upload)
+                    </label>
+                    {caseStudyForm.featuredImage && (
+                      <span className="text-[10px] text-emerald-400 font-medium bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                        ✓ Image Attached
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Live Image Preview Card */}
+                  {caseStudyForm.featuredImage ? (
+                    <div className="relative rounded-xl overflow-hidden border border-white/15 bg-black/60 group aspect-video max-h-48 w-full flex items-center justify-center">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={caseStudyForm.featuredImage}
+                        alt="Case study cover preview"
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLElement).style.opacity = '0.3';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+                        <span className="text-[10px] font-mono text-slate-300 truncate max-w-[70%] bg-black/70 px-2 py-0.5 rounded border border-white/10 backdrop-blur">
+                          {caseStudyForm.featuredImage}
+                        </span>
+                        <span className="text-[10px] text-purple-300 font-semibold bg-purple-950/80 border border-purple-500/30 px-2 py-0.5 rounded backdrop-blur">
+                          Live Preview
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setCaseStudyForm({ ...caseStudyForm, featuredImage: '' })}
+                        className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-black/80 hover:bg-rose-600/90 text-white/90 hover:text-white transition-all text-[11px] flex items-center gap-1 shadow-lg border border-white/10"
+                        title="Remove cover image"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Remove</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-dashed border-white/15 p-4 text-center bg-white/[0.01]">
+                      <ImageIcon className="w-6 h-6 text-slate-500 mx-auto mb-1" />
+                      <p className="text-xs text-slate-400 font-medium">No cover image attached</p>
+                      <p className="text-[11px] text-slate-500">Upload via Cloudinary or paste a direct image URL</p>
+                    </div>
+                  )}
+
+                  {/* Manual URL Input + Cloudinary Upload Widget */}
+                  <div className="space-y-2">
+                    <input
+                      type="url"
+                      value={caseStudyForm.featuredImage}
+                      onChange={(e) => setCaseStudyForm({ ...caseStudyForm, featuredImage: e.target.value })}
+                      placeholder="Or paste direct image URL (e.g. https://images.unsplash.com/...)"
+                      className="w-full px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                    />
+                    <CloudinaryUploadWidget
+                      folder="solonomous-labs/case-studies"
+                      currentUrl={caseStudyForm.featuredImage}
+                      onUploadSuccess={(url) => setCaseStudyForm({ ...caseStudyForm, featuredImage: url })}
+                    />
+                  </div>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-3">
+                <div className="flex justify-end gap-3 pt-3 border-t border-white/10">
                   <button
                     type="button"
                     onClick={() => setShowCaseStudyModal(false)}
@@ -2575,7 +2782,7 @@ export default function AdminPortalPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold"
+                    className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-all shadow-md shadow-purple-600/20"
                   >
                     {caseStudyFormMode === 'create' ? 'Publish Case Study' : 'Save Changes'}
                   </button>

@@ -83,6 +83,17 @@ export class CaseStudyController {
         ? req.body.metrics.map((m: any) => ({ metric: m.value || m.metric || '10x', label: m.label || 'Gain' }))
         : [{ metric: '10x', label: 'Efficiency' }]);
 
+      let techStack = req.body.techStack;
+      if (typeof techStack === 'string') {
+        techStack = techStack.split(',').map((s: string) => s.trim()).filter(Boolean);
+      } else if (!Array.isArray(techStack)) {
+        techStack = [];
+      }
+
+      const startDate = req.body.startDate || '';
+      const endDate = req.body.endDate || '';
+      const duration = req.body.duration || (startDate ? `${startDate} – ${endDate || 'Present'}` : '8 Weeks');
+
       const normalizedPayload = {
         ...req.body,
         slug: studySlug,
@@ -92,6 +103,10 @@ export class CaseStudyController {
         challenge: req.body.challenge || req.body.overview || '',
         strategy: req.body.strategy || req.body.solution || req.body.overview || '',
         architectureDetails: req.body.architectureDetails || req.body.solution || '',
+        techStack,
+        startDate,
+        endDate,
+        duration,
         results
       };
 
@@ -123,9 +138,27 @@ export class CaseStudyController {
         updateData.clientName = req.body.client;
       }
 
-      if (req.body.featuredImage) {
+      if (req.body.heroImage?.url) {
+        updateData.heroImage = { url: req.body.heroImage.url };
+      } else if (req.body.featuredImage) {
         const url = typeof req.body.featuredImage === 'string' ? req.body.featuredImage : req.body.featuredImage.url;
         if (url) updateData.heroImage = { url };
+      }
+
+      if (req.body.techStack !== undefined) {
+        let techStack = req.body.techStack;
+        if (typeof techStack === 'string') {
+          techStack = techStack.split(',').map((s: string) => s.trim()).filter(Boolean);
+        }
+        updateData.techStack = techStack;
+      }
+
+      if (req.body.startDate !== undefined) updateData.startDate = req.body.startDate;
+      if (req.body.endDate !== undefined) updateData.endDate = req.body.endDate;
+      if (req.body.startDate || req.body.endDate) {
+        const s = req.body.startDate || '';
+        const e = req.body.endDate || 'Present';
+        if (s) updateData.duration = `${s} – ${e}`;
       }
 
       if (req.body.solution) {

@@ -63,7 +63,7 @@ export default async function CaseStudyDetailPage({ params }: Props) {
             <Building className="w-3.5 h-3.5 text-purple-400" /> {study.clientName}
           </span>
           <span className="flex items-center gap-1.5 text-xs text-slate-400">
-            <Calendar className="w-3.5 h-3.5 text-purple-400" /> {study.duration}
+            <Calendar className="w-3.5 h-3.5 text-purple-400" /> {study.startDate ? `${study.startDate} – ${study.endDate || 'Present'}` : (study.duration || 'Delivered')}
           </span>
         </div>
 

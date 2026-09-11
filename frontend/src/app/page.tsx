@@ -19,7 +19,8 @@ import {
   Loader2,
   X,
   Lock,
-  UserCheck
+  UserCheck,
+  Calendar
 } from 'lucide-react';
 import { useUser, SignInButton } from '@clerk/nextjs';
 import confetti from 'canvas-confetti';
@@ -387,6 +388,12 @@ export default function HomePage() {
                     <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-md text-[11px] font-semibold text-purple-300 border border-white/10">
                       {study.industry}
                     </div>
+                    {(study.startDate || study.duration) && (
+                      <div className="absolute top-3 right-3 px-2 py-1 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-mono text-slate-300 border border-white/10 flex items-center gap-1 shadow-lg">
+                        <Calendar className="w-2.5 h-2.5 text-purple-400" />
+                        <span>{study.startDate ? `${study.startDate} – ${study.endDate || 'Present'}` : study.duration}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-6 flex-1 flex flex-col justify-between">
@@ -394,6 +401,25 @@ export default function HomePage() {
                       <h3 className="text-lg font-bold font-display text-white group-hover:text-purple-300 transition-colors mb-2 leading-snug">
                         {study.title}
                       </h3>
+
+                      {study.techStack && study.techStack.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {study.techStack.slice(0, 3).map((tech, ti) => (
+                            <span
+                              key={ti}
+                              className="px-2 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-purple-300 text-[10px] font-mono font-medium"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                          {study.techStack.length > 3 && (
+                            <span className="px-1.5 py-0.5 rounded bg-white/5 text-slate-400 text-[10px] font-mono">
+                              +{study.techStack.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
                       <p className="text-xs text-slate-400 line-clamp-3 mb-4 leading-relaxed">
                         {study.overview}
                       </p>

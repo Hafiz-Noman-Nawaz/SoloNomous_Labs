@@ -6,6 +6,8 @@ export interface ICaseStudy extends Document {
   clientName: string;
   industry: string;
   duration: string;
+  startDate?: string;
+  endDate?: string;
   heroImage: {
     url: string;
     publicId?: string;
@@ -36,6 +38,8 @@ const CaseStudySchema = new Schema<ICaseStudy>(
     clientName: { type: String, default: 'Enterprise Client' },
     industry: { type: String, default: 'Technology' },
     duration: { type: String, default: '8 Weeks' },
+    startDate: { type: String, default: '' },
+    endDate: { type: String, default: '' },
     heroImage: {
       url: { type: String, default: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80' },
       publicId: { type: String, default: '' },

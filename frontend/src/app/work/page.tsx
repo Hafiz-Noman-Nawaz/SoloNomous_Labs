@@ -60,7 +60,9 @@ export default function WorkPage() {
                   <span className="text-xs font-mono text-purple-400">0{idx + 1}</span>
                   <span className="text-xs text-slate-400">Client: {study.clientName}</span>
                   <span className="text-xs text-slate-500">•</span>
-                  <span className="text-xs text-slate-400">Timeline: {study.duration}</span>
+                  <span className="text-xs text-slate-400">
+                    Timeline: {study.startDate ? `${study.startDate} – ${study.endDate || 'Present'}` : (study.duration || 'Delivered')}
+                  </span>
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-bold font-display text-white">
