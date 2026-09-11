@@ -29,7 +29,7 @@ import { TiltCard } from '@/components/ui/TiltCard';
 import { MagneticButton } from '@/components/ui/MagneticButton';
 import { KeyImpactsCarousel } from '@/components/ui/KeyImpactsCarousel';
 import GradientWaves from '@/components/backgrounds/GradientWaves';
-import Galaxy from '@/components/backgrounds/Galaxy';
+import Aurora from '@/components/backgrounds/Aurora';
 import { useTheme } from '@/context/ThemeContext';
 
 export default function HomePage() {
@@ -157,30 +157,22 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Light Theme WebGL: React Bits Galaxy (Calibrated with visible cosmic violet/indigo stars) */}
+        {/* Light Theme: React Bits Aurora (Ultra-smooth, living ambient light ribbons) */}
         {!isDark && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            <Galaxy
+            <Aurora
+              colorStops={['#7C3AED', '#38BDF8', '#C084FC']}
+              amplitude={1.15}
+              blend={0.65}
+              speed={0.6}
               lightMode
-              transparent
-              density={1.15}
-              glowIntensity={0.35}
-              saturation={0.3}
-              hueShift={140}
-              twinkleIntensity={0.45}
-              rotationSpeed={0.08}
-              repulsionStrength={2.2}
-              mouseRepulsion
-              mouseInteraction
-              starSpeed={0.5}
-              speed={0.85}
-              className="w-full h-full"
+              className="w-full h-full opacity-70"
             />
-            {/* Ambient light haze & contrast protection overlays for AAA readability */}
-            <div className="absolute inset-0 bg-gradient-to-b from-purple-500/[0.04] via-transparent to-[#F8FAFC]/90 pointer-events-none" />
-            <div className="absolute inset-y-0 left-0 w-full lg:w-3/5 bg-gradient-to-r from-[#F8FAFC]/90 via-[#F8FAFC]/55 to-transparent pointer-events-none" />
+            {/* Ambient light haze & soft contrast protection overlays for flawless readability */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#F8FAFC]/30 via-transparent to-[#F8FAFC]/95 pointer-events-none" />
+            <div className="absolute inset-y-0 left-0 w-full lg:w-3/5 bg-gradient-to-r from-[#F8FAFC]/85 via-[#F8FAFC]/45 to-transparent pointer-events-none" />
             <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/75 to-transparent pointer-events-none" />
-            <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-[#F8FAFC]/75 to-transparent pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-[#F8FAFC]/60 to-transparent pointer-events-none" />
           </div>
         )}
 
