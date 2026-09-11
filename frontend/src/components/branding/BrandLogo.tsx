@@ -9,6 +9,7 @@ import { api } from '@/lib/api';
 interface BrandLogoProps {
   variant?: 'auto' | 'dark' | 'light' | 'mark';
   className?: string;
+  imgClassName?: string;
   width?: number;
   height?: number;
   linkToHome?: boolean;
@@ -18,8 +19,9 @@ interface BrandLogoProps {
 export const BrandLogo: React.FC<BrandLogoProps> = ({
   variant = 'auto',
   className = '',
-  width = 190,
-  height = 42,
+  imgClassName = '',
+  width = 210,
+  height = 50,
   linkToHome = true,
   overrideSrc
 }) => {
@@ -85,7 +87,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         alt={BRANDING.companyName}
         width={width}
         height={height}
-        className="h-auto max-h-[46px] object-contain transition-transform duration-200 hover:scale-[1.02]"
+        className={`h-9 sm:h-10 md:h-11 w-auto max-h-[52px] object-contain transition-transform duration-200 hover:scale-[1.02] ${imgClassName}`}
       />
     </div>
   );

@@ -182,14 +182,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
               : 'bg-white/95 backdrop-blur-md py-4'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* Brand Logo */}
-          <div className="flex items-center">
-            <BrandLogo variant="auto" width={180} height={40} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+          {/* Brand Logo - Enlarged and punchy */}
+          <div className="flex items-center shrink-0">
+            <BrandLogo variant="auto" width={220} height={50} className="py-0.5" />
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
 
@@ -473,28 +473,29 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
             })}
           </nav>
 
-          {/* Desktop Right Action */}
-          <div className="hidden lg:flex items-center gap-2.5">
+          {/* Desktop Right Action - Unified Height (h-9.5) and Visual Design System */}
+          <div className="hidden lg:flex items-center gap-2 shrink-0">
             <SignedOut>
               <SignInButton mode="modal">
                 <button
-                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer shadow-xs ${
+                  type="button"
+                  className={`h-9.5 px-3.5 rounded-xl inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap border transition-all cursor-pointer shrink-0 shadow-xs ${
                     isDark
-                      ? 'bg-white/[0.03] hover:bg-white/[0.08] text-slate-300 hover:text-white border-white/10'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                      ? 'bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white border-white/10'
+                      : 'bg-slate-100/90 hover:bg-slate-200/80 text-slate-700 hover:text-slate-900 border-slate-200'
                   }`}
                   title="Client Portal Sign In"
                 >
-                  <User className="w-3.5 h-3.5 text-purple-500" />
-                  <span>Client Login</span>
+                  <User className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                  <span className="whitespace-nowrap">Client Login</span>
                 </button>
               </SignInButton>
             </SignedOut>
 
             <SignedIn>
               <div
-                className={`flex items-center gap-2 px-2 py-1 rounded-xl border ${
-                  isDark ? 'bg-white/[0.03] border-white/10' : 'bg-slate-100 border-slate-300'
+                className={`h-9.5 px-2 rounded-xl border flex items-center justify-center shrink-0 shadow-xs ${
+                  isDark ? 'bg-white/[0.04] border-white/10' : 'bg-slate-100/90 border-slate-200'
                 }`}
               >
                 <UserButton afterSignOutUrl="/" />
@@ -506,54 +507,56 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
 
             <Link
               href="/admin"
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer group shadow-xs ${
+              className={`h-9.5 px-3.5 rounded-xl inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap border transition-all cursor-pointer shrink-0 shadow-xs group ${
                 isDark
-                  ? 'bg-white/[0.04] hover:bg-purple-600/10 text-slate-300 hover:text-purple-300 border-white/10 hover:border-purple-500/40'
-                  : 'bg-slate-100 hover:bg-purple-50 text-slate-800 hover:text-purple-800 border-slate-300 hover:border-purple-300'
+                  ? 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white border-purple-500/25 hover:border-purple-500/40'
+                  : 'bg-purple-50 hover:bg-purple-100/80 text-purple-800 hover:text-purple-950 border-purple-200 hover:border-purple-300'
               }`}
               title="Open SoloNomous Studio CMS & Admin Portal"
             >
-              <Shield className="w-3.5 h-3.5 text-purple-500 transition-colors" />
-              <span>Studio CMS</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <Shield className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+              <span className="whitespace-nowrap">Studio CMS</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
             </Link>
 
             <button
+              type="button"
               onClick={onStartProject}
-              className="relative inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white text-sm font-semibold shadow-lg shadow-purple-900/30 hover:shadow-purple-700/40 border border-purple-400/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+              className="h-9.5 px-4.5 rounded-xl inline-flex items-center gap-2 text-xs font-semibold whitespace-nowrap bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 text-white shadow-md shadow-purple-600/20 hover:shadow-purple-600/35 border border-purple-400/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shrink-0"
             >
-              <Rocket className="w-4 h-4 text-purple-200" />
-              <span>Start a Project</span>
+              <Rocket className="w-3.5 h-3.5 text-purple-200 shrink-0" />
+              <span className="whitespace-nowrap">Start a Project</span>
             </button>
           </div>
 
           {/* Mobile Right Action: ONLY below lg, single theme toggle, CMS, and burger button */}
-          <div className="flex lg:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-2 shrink-0">
             <ThemeToggle />
             <Link
               href="/admin"
-              className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+              className={`h-9.5 px-3 rounded-xl border transition-colors cursor-pointer flex items-center justify-center gap-1.5 text-xs font-semibold shrink-0 shadow-xs ${
                 isDark
-                  ? 'text-purple-400 hover:text-white hover:bg-white/5 border-purple-500/30'
-                  : 'text-purple-700 hover:text-purple-900 hover:bg-purple-50 border-purple-300'
+                  ? 'text-purple-300 hover:text-white bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/30'
+                  : 'text-purple-800 hover:text-purple-950 bg-purple-50 hover:bg-purple-100 border-purple-200'
               }`}
               title="Admin Portal"
             >
-              <Shield className="w-5 h-5" />
+              <Shield className="w-3.5 h-3.5 text-purple-500" />
+              <span>CMS</span>
             </Link>
 
             <button
               type="button"
               onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className={`p-2 rounded-xl border transition-colors cursor-pointer focus:outline-hidden ${
+              className={`h-9.5 w-9.5 rounded-xl border flex items-center justify-center transition-colors cursor-pointer shrink-0 shadow-xs focus:outline-hidden ${
                 isDark
-                  ? 'text-slate-300 hover:text-white hover:bg-white/5 border-white/10'
-                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100 border-slate-300'
+                  ? 'bg-white/5 text-slate-300 hover:text-white border-white/10'
+                  : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-slate-200'
               }`}
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-6 h-6 text-purple-500" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 text-purple-500" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
