@@ -102,7 +102,7 @@ export const api = {
     });
   },
   submitContact: async (data: any) => {
-    return fetchAPI<{ success: boolean; message: string }>('/leads/contact', {
+    return fetchAPI<{ success: boolean; message: string; data?: { id?: string; whatsappDirectUrl?: string } }>('/leads/contact', {
       method: 'POST',
       body: JSON.stringify(data)
     });

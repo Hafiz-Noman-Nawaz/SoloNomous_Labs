@@ -67,11 +67,11 @@ export default async function ServiceDetailPage({ params }: Props) {
 
         <div className="pt-6 flex flex-wrap gap-4 items-center">
           <Link
-            href="/contact"
+            href={`/contact?service=${encodeURIComponent(service.title)}`}
             className="px-7 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm transition-all shadow-lg shadow-purple-600/30 flex items-center gap-2"
           >
             <Sparkles className="w-4 h-4 text-purple-200" />
-            Kickoff This Engagement
+            Order / Kickoff This Service
           </Link>
           {service.startingPrice && (
             <span className="text-sm text-slate-400">
@@ -241,10 +241,10 @@ export default async function ServiceDetailPage({ params }: Props) {
           Schedule an architectural scoping consultation with our engineering team to define milestones, deliverables, and timeline.
         </p>
         <Link
-          href="/contact"
+          href={`/contact?service=${encodeURIComponent(service.title)}`}
           className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm transition-all shadow-xl shadow-purple-600/30"
         >
-          <Sparkles className="w-4 h-4" /> Start Project Brief
+          <Sparkles className="w-4 h-4" /> Order / Start Project Brief
         </Link>
       </div>
     </div>

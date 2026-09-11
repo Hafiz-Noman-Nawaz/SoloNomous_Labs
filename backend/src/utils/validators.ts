@@ -7,6 +7,7 @@ export const leadValidationSchema = z.object({
   phone: z.string().max(30).optional(),
   company: z.string().max(100).optional(),
   serviceInterested: z.string().optional(),
+  projectType: z.string().optional(),
   budgetRange: z.string().optional(),
   timeline: z.string().optional(),
   projectDescription: z.string().min(10, 'Project description must be at least 10 characters').max(5000),

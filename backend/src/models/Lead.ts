@@ -7,6 +7,7 @@ export interface ILead extends Document {
   phone?: string;
   company?: string;
   serviceInterested?: string;
+  projectType?: string;
   budgetRange?: string;
   timeline?: string;
   projectDescription: string;
@@ -42,6 +43,7 @@ const LeadSchema = new Schema<ILead>(
     phone: { type: String, default: '' },
     company: { type: String, default: '' },
     serviceInterested: { type: String, default: '' },
+    projectType: { type: String, default: '' },
     budgetRange: { type: String, default: '' },
     timeline: { type: String, default: '' },
     projectDescription: { type: String, required: true },

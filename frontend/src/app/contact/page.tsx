@@ -17,6 +17,21 @@ export default function ContactPage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [whatsappUrl, setWhatsappUrl] = useState('');
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const svc = params.get('service');
+      if (svc) {
+        setForm(prev => ({
+          ...prev,
+          subject: `Service Order: ${svc}`,
+          message: `Hello SoloNomous team, I would like to order and get started with your service: "${svc}". Please contact me with delivery schedule and technical kickoff details.`
+        }));
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,10 +44,13 @@ export default function ContactPage() {
     setError('');
 
     try {
-      await api.submitContact({
+      const res = await api.submitContact({
         ...form,
         source: 'contact_page'
       });
+      if (res.data?.whatsappDirectUrl) {
+        setWhatsappUrl(res.data.whatsappDirectUrl);
+      }
       setSubmitted(true);
       confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
     } catch (err: any) {
@@ -130,29 +148,43 @@ export default function ContactPage() {
           <div className="glass-card p-8 sm:p-10 rounded-3xl border border-white/10">
             {submitted ? (
               <div className="py-12 text-center">
-                <div className="w-16 h-16 bg-purple-500/10 border border-purple-500/30 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-400">
+                <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-400">
                   <CheckCircle className="w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-bold font-display text-white mb-2">Message Dispatched</h3>
                 <p className="text-sm text-slate-300 max-w-md mx-auto mb-6">
-                  Thank you for reaching out. A systems architect has been notified and will review your inquiry shortly.
+                  Thank you for reaching out. Our engineering team has been notified via <strong>Email</strong> and <strong>WhatsApp</strong> alert and will review your inquiry shortly.
                 </p>
-                <button
-                  onClick={() => {
-                    setSubmitted(false);
-                    setForm({
-                      name: '',
-                      email: '',
-                      phone: '',
-                      subject: 'Project Consultation',
-                      message: '',
-                      expectedTimeline: 'Within 4 Weeks'
-                    });
-                  }}
-                  className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold"
-                >
-                  Send Another Message
-                </button>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  {whatsappUrl && (
+                    <a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-emerald-950/40 transition-all"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Open in WhatsApp Now
+                    </a>
+                  )}
+                  <button
+                    onClick={() => {
+                      setSubmitted(false);
+                      setWhatsappUrl('');
+                      setForm({
+                        name: '',
+                        email: '',
+                        phone: '',
+                        subject: 'Project Consultation',
+                        message: '',
+                        expectedTimeline: 'Within 4 Weeks'
+                      });
+                    }}
+                    className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition-all"
+                  >
+                    Send Another Message
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">

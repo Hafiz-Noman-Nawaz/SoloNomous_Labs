@@ -2177,24 +2177,41 @@ export default function AdminPortalPage() {
             {/* SECTION D: CONTACT INFO */}
             <div className="glass-card p-6 sm:p-8 rounded-3xl border border-white/10 space-y-4 text-xs">
               <h3 className="text-base font-bold font-display text-white">Company Contact Channels</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Contact Email</label>
+                  <label className="block text-slate-300 font-semibold mb-1">Alert & Contact Email *</label>
                   <input
                     type="email"
+                    required
                     value={settings.contactEmail}
                     onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs"
+                    placeholder="contact@solonomouslabs.com"
+                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
                   />
+                  <span className="text-[10px] text-slate-400 mt-1 block">Receives client contact & order emails</span>
                 </div>
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Direct Phone</label>
+                  <label className="block text-slate-300 font-semibold mb-1">WhatsApp Alert Number *</label>
+                  <input
+                    type="text"
+                    required
+                    value={settings.whatsappNumber || ''}
+                    onChange={(e) => setSettings({ ...settings, whatsappNumber: e.target.value })}
+                    placeholder="+923156251281"
+                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-1 block">Receives instant WhatsApp alerts</span>
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Direct Phone Line</label>
                   <input
                     type="text"
                     value={settings.contactPhone}
                     onChange={(e) => setSettings({ ...settings, contactPhone: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs"
+                    placeholder="+1 (555) 019-8234"
+                    className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500"
                   />
+                  <span className="text-[10px] text-slate-400 mt-1 block">Public support phone line</span>
                 </div>
               </div>
             </div>

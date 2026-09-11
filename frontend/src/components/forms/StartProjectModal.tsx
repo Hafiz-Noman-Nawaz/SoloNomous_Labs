@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, ArrowRight, ArrowLeft, Loader2, Sparkles, UserCheck, Lock } from 'lucide-react';
+import { X, CheckCircle, ArrowRight, ArrowLeft, Loader2, Sparkles, UserCheck, Lock, MessageSquare } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useUser, SignInButton } from '@clerk/nextjs';
 import { api } from '@/lib/api';
@@ -23,6 +23,7 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [whatsappUrl, setWhatsappUrl] = useState('');
 
   const [formData, setFormData] = useState({
     serviceInterested: defaultService || 'Full-Stack Web Engineering',
@@ -48,13 +49,28 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
     }
   }, [user]);
 
-  const servicesList = [
+  // Sync selected service if passed or changed externally
+  useEffect(() => {
+    if (defaultService) {
+      setFormData(prev => ({
+        ...prev,
+        serviceInterested: defaultService
+      }));
+    }
+  }, [defaultService, isOpen]);
+
+  const defaultServicesList = [
     'Full-Stack Web Engineering',
     'Autonomous RAG & AI Integration',
     'Scalable SaaS Architecture & MVP',
     'High-Throughput API & Cloud Engineering',
     'UI/UX Design Systems & Frontend'
   ];
+
+  const servicesList = Array.from(new Set([
+    ...(formData.serviceInterested ? [formData.serviceInterested] : []),
+    ...defaultServicesList
+  ]));
 
   const projectTypes = [
     'New MVP from Scratch',
@@ -94,18 +110,23 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
     setError('');
 
     try {
-      await api.submitLead({
+      const res = await api.submitLead({
         type: 'start_a_project',
         fullName: formData.fullName,
         email: formData.email,
         phone: formData.phone,
         company: formData.company,
         serviceInterested: formData.serviceInterested,
+        projectType: formData.projectType,
         budgetRange: formData.budgetRange,
         timeline: formData.timeline,
         projectDescription: `[Type: ${formData.projectType}] [Clerk ID: ${user?.id || 'verified'}] ${formData.projectDescription}`,
         source: 'start_a_project_modal'
       });
+
+      if (res.data?.whatsappDirectUrl) {
+        setWhatsappUrl(res.data.whatsappDirectUrl);
+      }
 
       setSubmitted(true);
       confetti({
@@ -122,6 +143,7 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
 
   const resetAndClose = () => {
     setSubmitted(false);
+    setWhatsappUrl('');
     setStep(1);
     setError('');
     onClose();
@@ -138,7 +160,7 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={resetAndClose}
-          className="fixed inset-0 bg-black/80 backdrop-blur-md"
+          className="absolute inset-0 bg-black/80 backdrop-blur-md"
         />
 
         {/* Modal Container */}
@@ -161,20 +183,33 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
           </button>
 
           {submitted ? (
-            <div className="py-12 text-center">
-              <div className="w-16 h-16 bg-purple-500/10 border border-purple-500/30 rounded-full flex items-center justify-center mx-auto mb-5 text-purple-400">
+            <div className="py-10 text-center">
+              <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-400">
                 <CheckCircle className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-bold font-display text-white mb-2">Project Brief Received</h3>
-              <p className="text-slate-300 max-w-md mx-auto mb-6 text-sm">
-                Our principal systems architect will review your technical requirements and respond with an architectural scope within 4 business hours.
+              <h3 className="text-2xl font-bold font-display text-white mb-2">Service Order & Brief Dispatched!</h3>
+              <p className="text-slate-300 max-w-md mx-auto mb-6 text-sm leading-relaxed">
+                Your order for <strong className="text-purple-300">{formData.serviceInterested}</strong> has reached our engineering team via <strong>Email</strong> and <strong>WhatsApp</strong> alert. We will review your technical requirements promptly.
               </p>
-              <button
-                onClick={resetAndClose}
-                className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium transition-colors text-sm"
-              >
-                Back to Website
-              </button>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                {whatsappUrl && (
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-all text-xs flex items-center gap-2 shadow-lg shadow-emerald-950/40"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Open in WhatsApp Now
+                  </a>
+                )}
+                <button
+                  onClick={resetAndClose}
+                  className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium transition-colors text-xs"
+                >
+                  Return to Website
+                </button>
+              </div>
             </div>
           ) : (
             <div>

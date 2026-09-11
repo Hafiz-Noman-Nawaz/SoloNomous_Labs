@@ -14,22 +14,20 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>('dark');
+  const [theme, setThemeState] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Read stored preference or system preference
+    // Read stored preference, defaulting to light mode
     try {
       const savedTheme = localStorage.getItem('solonomous_theme') as Theme | null;
       if (savedTheme === 'light' || savedTheme === 'dark') {
         setThemeState(savedTheme);
-      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-        setThemeState('light');
       } else {
-        setThemeState('dark');
+        setThemeState('light');
       }
     } catch {
-      setThemeState('dark');
+      setThemeState('light');
     }
     setMounted(true);
   }, []);

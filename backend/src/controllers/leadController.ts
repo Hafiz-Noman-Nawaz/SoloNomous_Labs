@@ -2,11 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { Lead, ContactSubmission } from '../models/Lead';
 import { leadValidationSchema, contactValidationSchema } from '../utils/validators';
 import { EmailService } from '../services/emailService';
+import { WhatsAppService } from '../services/whatsAppService';
 import { AppError } from '../middleware/errorHandler';
 
 export class LeadController {
   /**
-   * Submit a new lead / project inquiry
+   * Submit a new lead / project inquiry / service order
    */
   public static async createLead(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -18,17 +19,34 @@ export class LeadController {
         priority: validatedData.budgetRange && validatedData.budgetRange.includes('$10k') ? 'high' : 'medium'
       });
 
-      // Transactional alert
-      await EmailService.notifyAdminNewLead(lead);
+      const serviceTitle = lead.serviceInterested || lead.projectType || 'Full-Stack Architecture';
+      const whatsappText = `🚀 *NEW SERVICE ORDER ALERT*
+━━━━━━━━━━━━━━━━━━━━━
+💼 *Service:* ${serviceTitle}
+👤 *Client:* ${lead.fullName}
+📧 *Email:* ${lead.email}
+📱 *Phone:* ${lead.phone || 'None'}
+🏢 *Company:* ${lead.company || 'Private'}
+💰 *Budget:* ${lead.budgetRange || 'Pending'}
+⏱️ *Timeline:* ${lead.timeline || '4-8 Weeks'}
+📝 *Requirements:*
+"${(lead.projectDescription || '').substring(0, 300)}"
+━━━━━━━━━━━━━━━━━━━━━
+🕒 ${new Date().toLocaleString()}`;
+
+      // Dispatch Email & WhatsApp alerts
+      await EmailService.sendServiceOrderAlert(lead);
+      const waResult = await WhatsAppService.sendAlert(whatsappText);
 
       res.status(201).json({
         success: true,
-        message: 'Your project brief has been submitted to SoloNomous Labs engineers. We will review and respond within 4 business hours.',
+        message: 'Your project brief and service selection have been received. We will review and respond within 4 business hours.',
         data: {
           leadId: lead._id,
           fullName: lead.fullName,
           email: lead.email,
-          createdAt: lead.createdAt
+          createdAt: lead.createdAt,
+          whatsappDirectUrl: waResult.directUrl
         }
       });
     } catch (error) {
@@ -48,10 +66,29 @@ export class LeadController {
         ipAddress: req.ip
       });
 
+      const whatsappText = `📨 *NEW CLIENT CONTACT MESSAGE*
+━━━━━━━━━━━━━━━━━━━━━
+👤 *Name:* ${contact.name}
+📧 *Email:* ${contact.email}
+📱 *Phone:* ${contact.phone || 'None'}
+📋 *Subject:* ${contact.subject || 'General Inquiry'}
+⏱️ *Timeline:* ${contact.expectedTimeline || 'Flexible'}
+💬 *Message:*
+"${(contact.message || '').substring(0, 400)}"
+━━━━━━━━━━━━━━━━━━━━━
+🕒 ${new Date().toLocaleString()}`;
+
+      // Dispatch Email & WhatsApp alerts
+      await EmailService.sendContactAlert(contact);
+      const waResult = await WhatsAppService.sendAlert(whatsappText);
+
       res.status(201).json({
         success: true,
-        message: 'Thank you. Your message has reached our team. Expect a response shortly.',
-        data: { id: contact._id }
+        message: 'Thank you. Your message has reached our team via Email and WhatsApp. Expect a response shortly.',
+        data: {
+          id: contact._id,
+          whatsappDirectUrl: waResult.directUrl
+        }
       });
     } catch (error) {
       next(error);

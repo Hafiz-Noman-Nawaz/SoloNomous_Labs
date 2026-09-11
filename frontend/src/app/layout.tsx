@@ -81,7 +81,21 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
+      <html lang="en" className={`${inter.variable} ${outfit.variable} light`} suppressHydrationWarning>
+        <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                try {
+                  var saved = localStorage.getItem('solonomous_theme') || 'light';
+                  document.documentElement.classList.add(saved);
+                  document.documentElement.classList.remove(saved === 'dark' ? 'light' : 'dark');
+                  document.documentElement.style.colorScheme = saved;
+                } catch (e) {}
+              `
+            }}
+          />
+        </head>
         <body className="antialiased selection:bg-purple-600/30 selection:text-white">
           <ClientLayoutShell>{children}</ClientLayoutShell>
         </body>

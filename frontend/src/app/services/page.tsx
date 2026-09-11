@@ -18,6 +18,7 @@ import {
 import { TiltCard } from '@/components/ui/TiltCard';
 import { FloatingOrbs } from '@/components/ui/FloatingOrbs';
 import { CursorSpotlight } from '@/components/ui/CursorSpotlight';
+import { useModal } from '@/context/ModalContext';
 
 const DEFAULT_CATEGORIES: ServiceCategory[] = [
   {
@@ -43,6 +44,7 @@ const DEFAULT_CATEGORIES: ServiceCategory[] = [
 ];
 
 export default function ServicesPage() {
+  const { openProjectModal } = useModal();
   const [categories, setCategories] = useState<ServiceCategory[]>(DEFAULT_CATEGORIES);
   const [services, setServices] = useState<Service[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -271,21 +273,29 @@ export default function ServicesPage() {
                               Starting at <span className="text-lg font-bold text-white">${svc.startingPrice.toLocaleString()}</span> USD{svc.pricingInterval && svc.pricingInterval !== 'one_time' ? ` ${svc.pricingInterval}` : ''}
                             </div>
                           )}
-                          <div className="flex flex-col sm:flex-row gap-2.5">
+                          <div className="flex flex-col sm:flex-row gap-2">
+                            <button
+                              type="button"
+                              onClick={() => openProjectModal(svc.title)}
+                              className="flex-1 px-3.5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs text-center transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-1.5"
+                            >
+                              <span>Order Service</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
                             <Link
                               href={`/services/${svc.slug}`}
-                              className="flex-1 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs text-center transition-all shadow-md shadow-purple-600/20"
+                              className="px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-semibold text-xs text-center transition-all"
                             >
-                              Architecture Scope
+                              Details
                             </Link>
                             <a
                               href="https://www.fiverr.com/nomannawaz67"
                               target="_blank"
                               rel="noreferrer"
-                              className="px-4 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-semibold text-xs text-center transition-colors inline-flex items-center justify-center gap-1.5"
+                              className="px-3 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-semibold text-xs text-center transition-colors inline-flex items-center justify-center gap-1"
                               title="Order service directly on Fiverr"
                             >
-                              <span>Order on Fiverr</span>
+                              <span>Fiverr</span>
                               <ExternalLink className="w-3 h-3" />
                             </a>
                           </div>
