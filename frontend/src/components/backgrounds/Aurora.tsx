@@ -19,7 +19,6 @@ uniform float uAmplitude;
 uniform vec3 uColorStops[3];
 uniform vec2 uResolution;
 uniform float uBlend;
-uniform float uLightMode;
 
 out vec4 fragColor;
 
@@ -67,57 +66,49 @@ float snoise(vec2 v) {
   return 130.0 * dot(m, g);
 }
 
-struct ColorStop {
-  vec3 color;
-  float position;
-};
-
-#define COLOR_RAMP(colors, factor, finalColor) {              \
-  int index = 0;                                            \
-  for (int i = 0; i < 2; i++) {                               \
-     ColorStop currentColor = colors[i];                    \
-     bool isInBetween = currentColor.position <= factor;    \
-     index = int(mix(float(index), float(i), float(isInBetween))); \
-  }                                                         \
-  ColorStop currentColor = colors[index];                   \
-  ColorStop nextColor = colors[index + 1];                  \
-  float range = nextColor.position - currentColor.position; \
-  float lerpFactor = (factor - currentColor.position) / range; \
-  finalColor = mix(currentColor.color, nextColor.color, lerpFactor); \
-}
-
 void main() {
-  vec2 uv = gl_FragCoord.xy / uResolution;
+  vec2 uv = gl_FragCoord.xy / uResolution.xy;
+
+  // Horizontal gradient ramp across the 3 brand color stops
+  vec3 c0 = uColorStops[0];
+  vec3 c1 = uColorStops[1];
+  vec3 c2 = uColorStops[2];
   
-  ColorStop colors[3];
-  colors[0] = ColorStop(uColorStops[0], 0.0);
-  colors[1] = ColorStop(uColorStops[1], 0.5);
-  colors[2] = ColorStop(uColorStops[2], 1.0);
-  
-  vec3 rampColor;
-  COLOR_RAMP(colors, uv.x, rampColor);
-  
-  float height = snoise(vec2(uv.x * 2.2 + uTime * 0.12, uTime * 0.20)) * 0.5 * uAmplitude;
-  height = exp(height);
-  height = (uv.y * 2.0 - height + 0.2);
-  float intensity = 0.6 * height;
-  
-  float midPoint = 0.20;
-  float auroraAlpha = smoothstep(midPoint - uBlend * 0.5, midPoint + uBlend * 0.5, intensity);
-  
-  vec3 auroraColor = intensity * rampColor;
-  
-  if (uLightMode > 0.5) {
-    // Ethereal light-mode calibration: soft living aurora ribbons over slate off-white (#F8FAFC)
-    float energy = clamp(max(intensity, 0.0), 0.0, 1.0);
-    float coverage = clamp(auroraAlpha * (0.32 + 0.48 * energy), 0.0, 0.70);
-    vec3 bgSlate = vec3(0.972, 0.980, 0.988); // #F8FAFC
-    // Soft pastel infusion of the brand palette
-    vec3 ribbonColor = mix(rampColor, vec3(0.52, 0.30, 0.92), 0.30);
-    fragColor = vec4(mix(bgSlate, ribbonColor, coverage * 0.40), 1.0);
+  vec3 ramp;
+  if (uv.x < 0.5) {
+    ramp = mix(c0, c1, uv.x * 2.0);
   } else {
-    fragColor = vec4(auroraColor * auroraAlpha, auroraAlpha);
+    ramp = mix(c1, c2, (uv.x - 0.5) * 2.0);
   }
+
+  // Harmonic wave calculations with simplex noise displacement
+  float w1 = sin(uv.x * 3.5 + uTime * 0.7) * 0.16 * uAmplitude;
+  float w2 = cos(uv.x * 5.2 - uTime * 0.5) * 0.09 * uAmplitude;
+  float noise = snoise(vec2(uv.x * 2.0 + uTime * 0.15, uv.y * 1.5 + uTime * 0.08)) * 0.18 * uAmplitude;
+
+  // Primary ribbon centered in upper-mid viewport
+  float center1 = 0.50 + w1 + w2 + noise;
+  float dist1 = abs(uv.y - center1);
+  float ribbonWidth1 = 0.40 + uBlend * 0.20;
+  float glow1 = smoothstep(ribbonWidth1, 0.0, dist1);
+  glow1 = pow(glow1, 1.3);
+
+  // Secondary undulating ribbon for rich multilayered depth
+  float w3 = cos(uv.x * 4.0 + uTime * 0.6) * 0.14 * uAmplitude;
+  float center2 = 0.65 + w3 + noise * 0.7;
+  float dist2 = abs(uv.y - center2);
+  float glow2 = smoothstep(0.32, 0.0, dist2);
+  glow2 = pow(glow2, 1.5);
+
+  float totalIntensity = clamp(glow1 * 0.85 + glow2 * 0.55, 0.0, 1.0);
+
+  vec3 finalColor = mix(ramp, c1, glow2 * 0.4);
+
+  // Visible, elegant alpha intensity on light background (#F8FAFC)
+  float alpha = clamp(totalIntensity * 0.50, 0.0, 0.75);
+
+  // Premultiplied alpha output for clean WebGL blending
+  fragColor = vec4(finalColor * alpha, alpha);
 }
 `;
 
@@ -126,23 +117,21 @@ export interface AuroraProps {
   amplitude?: number;
   blend?: number;
   speed?: number;
-  lightMode?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
 
 export const Aurora: React.FC<AuroraProps> = ({
-  colorStops = ['#7C3AED', '#38BDF8', '#C084FC'],
+  colorStops = ['#7C3AED', '#0284C7', '#D946EF'],
   amplitude = 1.0,
   blend = 0.55,
   speed = 0.8,
-  lightMode = false,
   className = '',
   style
 }) => {
   const ctnDom = useRef<HTMLDivElement>(null);
-  const propsRef = useRef({ colorStops, amplitude, blend, speed, lightMode });
-  propsRef.current = { colorStops, amplitude, blend, speed, lightMode };
+  const propsRef = useRef({ colorStops, amplitude, blend, speed });
+  propsRef.current = { colorStops, amplitude, blend, speed };
 
   useEffect(() => {
     const ctn = ctnDom.current;
@@ -175,28 +164,15 @@ export const Aurora: React.FC<AuroraProps> = ({
 
     let program: Program;
 
-    function resize() {
-      if (!ctn) return;
-      const width = Math.max(1, ctn.offsetWidth);
-      const height = Math.max(1, ctn.offsetHeight);
-      renderer.setSize(width, height);
-      if (program) {
-        program.uniforms.uResolution.value = [width, height];
-      }
-    }
-    window.addEventListener('resize', resize);
-    const ro = new ResizeObserver(resize);
-    ro.observe(ctn);
+    const colorStopsArray = colorStops.map(hex => {
+      const c = new Color(hex);
+      return [c.r, c.g, c.b];
+    });
 
     const geometry = new Triangle(gl);
     if ((geometry.attributes as any).uv) {
       delete (geometry.attributes as any).uv;
     }
-
-    const colorStopsArray = colorStops.map(hex => {
-      const c = new Color(hex);
-      return [c.r, c.g, c.b];
-    });
 
     program = new Program(gl, {
       vertex: VERT,
@@ -205,14 +181,31 @@ export const Aurora: React.FC<AuroraProps> = ({
         uTime: { value: 0 },
         uAmplitude: { value: amplitude },
         uColorStops: { value: colorStopsArray },
-        uResolution: { value: [ctn.offsetWidth || 1, ctn.offsetHeight || 1] },
-        uBlend: { value: blend },
-        uLightMode: { value: lightMode ? 1.0 : 0.0 }
+        uResolution: { value: new Float32Array([1, 1]) },
+        uBlend: { value: blend }
       }
     });
 
     const mesh = new Mesh(gl, { geometry, program });
     ctn.appendChild(canvas);
+
+    const resize = () => {
+      if (!ctn) return;
+      const width = Math.max(1, Math.floor(ctn.offsetWidth));
+      const height = Math.max(1, Math.floor(ctn.offsetHeight));
+      renderer.setSize(width, height);
+      if (program) {
+        const res = program.uniforms.uResolution.value as Float32Array;
+        res[0] = gl.drawingBufferWidth;
+        res[1] = gl.drawingBufferHeight;
+      }
+      renderer.render({ scene: mesh });
+    };
+
+    window.addEventListener('resize', resize, { passive: true });
+    const ro = new ResizeObserver(resize);
+    ro.observe(ctn);
+    resize();
 
     let animateId = 0;
     let isVisible = true;
@@ -220,10 +213,9 @@ export const Aurora: React.FC<AuroraProps> = ({
 
     const update = (t: number) => {
       const curSpeed = propsRef.current.speed ?? speed;
-      program.uniforms.uTime.value = t * 0.001 * curSpeed * 0.35;
+      program.uniforms.uTime.value = t * 0.001 * curSpeed * 0.45;
       program.uniforms.uAmplitude.value = propsRef.current.amplitude ?? amplitude;
       program.uniforms.uBlend.value = propsRef.current.blend ?? blend;
-      program.uniforms.uLightMode.value = (propsRef.current.lightMode ?? lightMode) ? 1.0 : 0.0;
       const stops = propsRef.current.colorStops ?? colorStops;
       program.uniforms.uColorStops.value = stops.map(hex => {
         const c = new Color(hex);
@@ -259,7 +251,6 @@ export const Aurora: React.FC<AuroraProps> = ({
     document.addEventListener('visibilitychange', onVisibility);
 
     tryStart();
-    resize();
 
     return () => {
       tryStop();
@@ -274,7 +265,7 @@ export const Aurora: React.FC<AuroraProps> = ({
       } catch {}
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
-  }, [amplitude, blend, lightMode]);
+  }, [amplitude, blend]);
 
   return <div ref={ctnDom} className={`aurora-container ${className}`.trim()} style={style} />;
 };

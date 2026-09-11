@@ -47,6 +47,7 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://clerk.solonomous-labs.com https://challenges.cloudflare.com https://*.clerk.accounts.dev",
+              "worker-src 'self' blob:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: blob: https://images.unsplash.com https://res.cloudinary.com https://img.clerk.com",
               "font-src 'self' https://fonts.gstatic.com data:",

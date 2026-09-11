@@ -157,22 +157,18 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Light Theme: React Bits Aurora (Ultra-smooth, living ambient light ribbons) */}
+        {/* Light Theme: React Bits Aurora (Living ambient light ribbons) */}
         {!isDark && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
             <Aurora
-              colorStops={['#7C3AED', '#38BDF8', '#C084FC']}
-              amplitude={1.15}
-              blend={0.65}
-              speed={0.6}
-              lightMode
-              className="w-full h-full opacity-70"
+              colorStops={['#7C3AED', '#0284C7', '#D946EF']}
+              amplitude={1.1}
+              blend={0.5}
+              speed={0.7}
+              className="w-full h-full"
             />
-            {/* Ambient light haze & soft contrast protection overlays for flawless readability */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#F8FAFC]/30 via-transparent to-[#F8FAFC]/95 pointer-events-none" />
-            <div className="absolute inset-y-0 left-0 w-full lg:w-3/5 bg-gradient-to-r from-[#F8FAFC]/85 via-[#F8FAFC]/45 to-transparent pointer-events-none" />
-            <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/75 to-transparent pointer-events-none" />
-            <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-[#F8FAFC]/60 to-transparent pointer-events-none" />
+            {/* Subtle bottom fade to seamlessly blend with the next section */}
+            <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-[#F8FAFC] to-transparent pointer-events-none" />
           </div>
         )}
 
