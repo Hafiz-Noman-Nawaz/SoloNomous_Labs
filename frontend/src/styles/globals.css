@@ -184,6 +184,8 @@ html.light h6,
 [data-theme="light"] h5,
 [data-theme="light"] h6 {
   color: #0F172A !important;
+  filter: none !important;
+  text-shadow: none !important;
 }
 
 html.light .text-white,

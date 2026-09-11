@@ -27,10 +27,9 @@ import { useUser, SignInButton } from '@clerk/nextjs';
 import confetti from 'canvas-confetti';
 import { TiltCard } from '@/components/ui/TiltCard';
 import { MagneticButton } from '@/components/ui/MagneticButton';
-import { FloatingOrbs } from '@/components/ui/FloatingOrbs';
-import { CursorSpotlight } from '@/components/ui/CursorSpotlight';
 import { KeyImpactsCarousel } from '@/components/ui/KeyImpactsCarousel';
 import GradientWaves from '@/components/backgrounds/GradientWaves';
+import Galaxy from '@/components/backgrounds/Galaxy';
 import { useTheme } from '@/context/ThemeContext';
 
 export default function HomePage() {
@@ -122,13 +121,9 @@ export default function HomePage() {
 
   return (
     <div className="relative overflow-hidden">
-      {/* $20k Luxury FX: Global Cursor Tracking Spotlight & Transparent Levitating Glass Orbs */}
-      <CursorSpotlight />
-      <FloatingOrbs />
-
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[90vh] flex items-center justify-center pt-8 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* React Bits WebGL Gradient Waves: Only Active in Dark Theme */}
+        {/* Dark Theme WebGL: React Bits GradientWaves */}
         {isDark && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
             <GradientWaves
@@ -159,6 +154,33 @@ export default function HomePage() {
             <div className="absolute inset-y-0 left-0 w-full lg:w-3/5 bg-gradient-to-r from-[#09080E]/90 via-[#09080E]/55 to-transparent pointer-events-none" />
             <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#09080E] via-[#09080E]/70 to-transparent pointer-events-none" />
             <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-[#09080E]/70 to-transparent pointer-events-none" />
+          </div>
+        )}
+
+        {/* Light Theme WebGL: React Bits Galaxy (Calibrated with visible cosmic violet/indigo stars) */}
+        {!isDark && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+            <Galaxy
+              lightMode
+              transparent
+              density={1.15}
+              glowIntensity={0.35}
+              saturation={0.3}
+              hueShift={140}
+              twinkleIntensity={0.45}
+              rotationSpeed={0.08}
+              repulsionStrength={2.2}
+              mouseRepulsion
+              mouseInteraction
+              starSpeed={0.5}
+              speed={0.85}
+              className="w-full h-full"
+            />
+            {/* Ambient light haze & contrast protection overlays for AAA readability */}
+            <div className="absolute inset-0 bg-gradient-to-b from-purple-500/[0.04] via-transparent to-[#F8FAFC]/90 pointer-events-none" />
+            <div className="absolute inset-y-0 left-0 w-full lg:w-3/5 bg-gradient-to-r from-[#F8FAFC]/90 via-[#F8FAFC]/55 to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/75 to-transparent pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-[#F8FAFC]/75 to-transparent pointer-events-none" />
           </div>
         )}
 

@@ -12,8 +12,6 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { TiltCard } from '@/components/ui/TiltCard';
-import { FloatingOrbs } from '@/components/ui/FloatingOrbs';
-import { CursorSpotlight } from '@/components/ui/CursorSpotlight';
 
 interface CategoryPageProps {
   params: { slug: string };
@@ -119,10 +117,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <div className="relative overflow-hidden py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-screen">
-      {/* $20k Luxury FX: Global Cursor Tracking Spotlight & Floating Transparent Glass Orbs */}
-      <CursorSpotlight />
-      <FloatingOrbs />
-
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-slate-400 mb-8" aria-label="Breadcrumb">
         <Link href="/" className="hover:text-white transition-colors">Home</Link>

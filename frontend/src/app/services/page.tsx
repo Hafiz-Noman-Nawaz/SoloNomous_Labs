@@ -16,8 +16,6 @@ import {
   Wrench
 } from 'lucide-react';
 import { TiltCard } from '@/components/ui/TiltCard';
-import { FloatingOrbs } from '@/components/ui/FloatingOrbs';
-import { CursorSpotlight } from '@/components/ui/CursorSpotlight';
 import { useModal } from '@/context/ModalContext';
 
 const DEFAULT_CATEGORIES: ServiceCategory[] = [
@@ -96,10 +94,6 @@ export default function ServicesPage() {
 
   return (
     <div className="relative overflow-hidden py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-screen">
-      {/* $20k Luxury FX: Atmospheric Spotlight & Floating Transparent Glass Orbs */}
-      <CursorSpotlight />
-      <FloatingOrbs />
-
       {/* Header */}
       <div className="max-w-3xl mb-12">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs font-semibold text-purple-400 mb-3">
