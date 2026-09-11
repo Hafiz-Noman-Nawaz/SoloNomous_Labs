@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { CheckCircle2, ArrowRight, ShieldCheck, Clock, Tag, PlusCircle, Cpu, Rocket } from 'lucide-react';
 import { PricingPackage } from '@/types';
 import { useModal } from '@/context/ModalContext';
+import { ProjectCostEstimator } from '@/components/calculator/ProjectCostEstimator';
+import { AgencyComparison } from '@/components/home/AgencyComparison';
 
 interface Props {
   initialPackages?: PricingPackage[];
@@ -164,6 +166,14 @@ export default function PricingContent({ initialPackages = [] }: Props) {
           })}
         </div>
       )}
+
+      {/* Interactive Estimator & Scope Calculator */}
+      <ProjectCostEstimator />
+
+      {/* Agency vs Freelancers vs SoloNomous Labs */}
+      <div className="-mx-4 sm:-mx-6 lg:-mx-8 mb-16">
+        <AgencyComparison />
+      </div>
 
       {/* Engagement Guarantees */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">

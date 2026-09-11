@@ -31,6 +31,8 @@ import { KeyImpactsCarousel } from '@/components/ui/KeyImpactsCarousel';
 import GradientWaves from '@/components/backgrounds/GradientWaves';
 import Aurora from '@/components/backgrounds/Aurora';
 import { useTheme } from '@/context/ThemeContext';
+import { ProjectCostEstimator } from '@/components/calculator/ProjectCostEstimator';
+import { AgencyComparison } from '@/components/home/AgencyComparison';
 
 export default function HomePage() {
   const { user, isSignedIn } = useUser();
@@ -542,6 +544,12 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* 5.5 INTERACTIVE PROJECT SCOPE & INVESTMENT ESTIMATOR */}
+      <ProjectCostEstimator />
+
+      {/* 5.6 WHY TECHNICAL FOUNDERS CHOOSE SOLONOMOUS (COMPARISON MATRIX) */}
+      <AgencyComparison />
 
       {/* 6. PILLAR ARTICLES */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#07060B] border-y border-white/5">

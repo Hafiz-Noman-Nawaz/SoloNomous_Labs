@@ -96,10 +96,6 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isSignedIn) {
-      setError('Please sign in or create an account below before submitting your project brief.');
-      return;
-    }
 
     if (!formData.fullName || !formData.email || !formData.projectDescription) {
       setError('Please provide your name, email, and project description.');
@@ -424,31 +420,44 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
                     />
                   </div>
 
-                  {/* Client Verification Status */}
+                  {/* Client Verification & Trust Indicators */}
                   {isSignedIn ? (
                     <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
                       <UserCheck className="w-4 h-4 shrink-0" />
-                      <span>Verified Client: <strong className="text-white">{user?.fullName || user?.primaryEmailAddress?.emailAddress}</strong></span>
+                      <span>Verified Client Account: <strong className="text-white">{user?.fullName || user?.primaryEmailAddress?.emailAddress}</strong></span>
                     </div>
                   ) : (
-                    <div className="p-3.5 rounded-xl bg-purple-950/30 border border-purple-500/30 text-xs space-y-2.5">
-                      <div className="flex items-center gap-2 text-purple-300 font-semibold">
-                        <Lock className="w-4 h-4 text-purple-400" />
-                        <span>Client Verification Required for Submission</span>
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-xs">
+                      <div className="flex items-center gap-2 text-slate-300">
+                        <UserCheck className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                        <span className="text-[11px]">Submitting as guest. Have a client account?</span>
                       </div>
-                      <p className="text-slate-400 text-[11px] leading-relaxed">
-                        To guarantee genuine collaboration and direct project tracking, please create or log into your client account.
-                      </p>
                       <SignInButton mode="modal">
                         <button
                           type="button"
-                          className="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition-all shadow-md shadow-purple-600/30 cursor-pointer flex items-center justify-center gap-1.5"
+                          className="text-[11px] font-semibold text-purple-400 hover:text-purple-300 transition-colors underline cursor-pointer"
                         >
-                          <UserCheck className="w-3.5 h-3.5" /> Sign In / Create Client Account
+                          Sign In
                         </button>
                       </SignInButton>
                     </div>
                   )}
+
+                  {/* Reassurance Badges */}
+                  <div className="grid grid-cols-3 gap-2 pt-1">
+                    <div className="p-2 rounded-lg bg-white/[0.02] border border-white/5 text-center">
+                      <div className="text-[10px] font-bold text-white">100% IP Ownership</div>
+                      <div className="text-[9px] text-slate-400">Day 1 source code transfer</div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-white/[0.02] border border-white/5 text-center">
+                      <div className="text-[10px] font-bold text-white">Mutual NDA</div>
+                      <div className="text-[9px] text-slate-400">Strict confidentiality</div>
+                    </div>
+                    <div className="p-2 rounded-lg bg-white/[0.02] border border-white/5 text-center">
+                      <div className="text-[10px] font-bold text-white">30-Day Warranty</div>
+                      <div className="text-[9px] text-slate-400">Zero regression guarantee</div>
+                    </div>
+                  </div>
 
                   {error && (
                     <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
@@ -456,17 +465,17 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
                     </div>
                   )}
 
-                  <div className="pt-3 flex justify-between items-center">
+                  <div className="pt-2 flex justify-between items-center">
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-sm transition-colors"
+                      className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-sm transition-colors cursor-pointer"
                     >
                       <ArrowLeft className="w-4 h-4" /> Back
                     </button>
                     <button
                       type="submit"
-                      disabled={loading || !isSignedIn}
+                      disabled={loading}
                       className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium text-sm transition-all shadow-md shadow-purple-600/25 cursor-pointer"
                     >
                       {loading ? (

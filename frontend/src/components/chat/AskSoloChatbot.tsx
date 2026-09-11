@@ -13,6 +13,76 @@ interface Message {
   suggestedAction?: string;
 }
 
+// Helper: Cleanly parse bold and links without needing heavy markdown parser
+function parseInlineMarkdown(text: string): React.ReactNode[] {
+  const regex = /(\*\*.*?\*\*|\[.*?\]\(.*?\))/g;
+  const parts = text.split(regex);
+
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} className="font-semibold text-white">{part.slice(2, -2)}</strong>;
+    }
+    const linkMatch = part.match(/^\[(.*?)\]\((.*?)\)$/);
+    if (linkMatch) {
+      return (
+        <a
+          key={i}
+          href={linkMatch[2]}
+          target={linkMatch[2].startsWith('http') ? '_blank' : undefined}
+          rel={linkMatch[2].startsWith('http') ? 'noreferrer' : undefined}
+          className="text-purple-300 hover:text-purple-200 underline underline-offset-2 transition-colors font-medium"
+        >
+          {linkMatch[1]}
+        </a>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
+// Helper: Format message lines, stripping any raw # headers into clean bold typography
+function FormattedChatMessage({ content }: { content: string }) {
+  if (!content) return null;
+  const lines = content.split('\n');
+
+  return (
+    <div className="space-y-1.5 text-xs sm:text-sm">
+      {lines.map((rawLine, idx) => {
+        let line = rawLine.trim();
+        if (!line) return <div key={idx} className="h-1" />;
+
+        // Strip leading # headers and format as bold header label
+        const headerMatch = line.match(/^#{1,6}\s+(.*)$/);
+        if (headerMatch) {
+          return (
+            <div key={idx} className="font-bold text-white text-xs sm:text-sm pt-1">
+              {parseInlineMarkdown(headerMatch[1])}
+            </div>
+          );
+        }
+
+        // Detect bullet points
+        const isBullet = line.startsWith('•') || line.startsWith('- ') || line.startsWith('* ');
+        if (isBullet) {
+          const bulletText = line.replace(/^[•\-\*]\s*/, '');
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-0.5 text-slate-200 leading-relaxed">
+              <span className="text-purple-400 font-bold shrink-0 mt-0.5">•</span>
+              <span className="flex-1">{parseInlineMarkdown(bulletText)}</span>
+            </div>
+          );
+        }
+
+        return (
+          <p key={idx} className="leading-relaxed">
+            {parseInlineMarkdown(line)}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export const AskSoloChatbot: React.FC<{ onStartProject?: () => void }> = ({ onStartProject }) => {
   const { settings } = useSettings();
   const contactEmail = settings?.contactEmail || 'solonomouslabs@gmail.com';
@@ -271,29 +341,31 @@ export const AskSoloChatbot: React.FC<{ onStartProject?: () => void }> = ({ onSt
                   >
                     {msg.content ? (
                       <>
-                        <span className="whitespace-pre-wrap">{msg.content}</span>
+                        <FormattedChatMessage content={msg.content} />
                         {loading && index === messages.length - 1 && msg.role === 'assistant' && (
                           <span className="inline-block w-1.5 h-3.5 ml-1 bg-purple-400 animate-pulse align-middle" />
                         )}
                       </>
                     ) : (
-                      <div className="flex items-center gap-1.5 py-1 text-slate-400">
+                      <div className="flex items-center gap-2 py-1 text-purple-300">
                         <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-400" />
-                        <span className="text-xs">Analyzing knowledge & streaming...</span>
+                        <span className="text-xs font-medium tracking-wide">Thinking...</span>
                       </div>
                     )}
 
                     {/* Citations cards if RAG retrieved sources */}
                     {msg.citations && msg.citations.length > 0 && (
-                      <div className="mt-2.5 pt-2 border-t border-white/10 space-y-1">
-                        <div className="text-[10px] font-semibold uppercase tracking-wider text-purple-300">
-                          Verified Knowledge Citations:
-                        </div>
+                      <div className="mt-2.5 pt-2 border-t border-white/10 flex flex-wrap items-center gap-1.5">
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-purple-300 mr-0.5">
+                          Sources:
+                        </span>
                         {msg.citations.map((c, ci) => (
                           <a
                             key={ci}
                             href={c.sourceUrl || '#'}
-                            className="inline-flex items-center gap-1 text-[11px] text-slate-300 hover:text-white bg-white/5 px-2 py-0.5 rounded-md mr-1 mt-1 border border-white/5 transition-colors"
+                            target={c.sourceUrl?.startsWith('http') ? '_blank' : undefined}
+                            rel={c.sourceUrl?.startsWith('http') ? 'noreferrer' : undefined}
+                            className="inline-flex items-center gap-1 text-[11px] text-slate-300 hover:text-white bg-white/5 hover:bg-purple-600/20 px-2 py-0.5 rounded-md border border-white/10 transition-colors"
                           >
                             <ExternalLink className="w-2.5 h-2.5 text-purple-400" />
                             {c.title}
@@ -318,10 +390,10 @@ export const AskSoloChatbot: React.FC<{ onStartProject?: () => void }> = ({ onSt
                 </div>
               ))}
 
-              {loading && (
-                <div className="flex items-center gap-2 text-slate-400 text-xs py-2">
-                  <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
-                  <span>Analyzing inquiry...</span>
+              {loading && messages[messages.length - 1]?.role === 'user' && (
+                <div className="flex items-center gap-2 text-purple-300 text-xs py-2 px-1">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-400" />
+                  <span className="font-medium tracking-wide">Thinking...</span>
                 </div>
               )}
 

@@ -418,14 +418,14 @@ export class AiRagService {
     // 1. Strict Academic Policy Refusal
     if (intent === 'academic_refusal') {
       reply =
-        "### Academic Integrity Policy Notice\n\nNo, SoloNomous Labs does not create university assignments, homework, thesis, or Final Year Projects (FYPs) for academic submission.\n\nWe are a professional software and AI product studio focused exclusively on building commercial applications, SaaS products, and business web solutions. If you are launching a genuine commercial startup or business application, we would be pleased to assist you.";
+        "**Academic Integrity Policy**\n\nSoloNomous Labs is an engineering studio dedicated exclusively to commercial software, SaaS products, and business web applications.\n\nWe do not write university assignments, thesis projects, or FYPs for academic grading. If you are launching an actual commercial startup or business system, we would be glad to collaborate.";
       suggestedAction = 'none';
     }
 
     // 2. Company Overview ("What does SoloNomous Labs do?")
     else if (intent === 'company_overview') {
       reply =
-        "### About SoloNomous Labs\n\nSoloNomous Labs is a professional **Software & AI Product Studio** founded by lead engineer Noman Nawaz. We design, architect, and deploy reliable digital products for businesses, startups, and enterprises.\n\n#### Core Capabilities\n- **Full-Stack Web Applications**: Modern Next.js, React, Node.js, and TypeScript architectures.\n- **SaaS MVP Engineering**: Rapid, production-ready MVP development with authentication, billing, and database workflows.\n- **AI & RAG Systems**: Grounded AI assistants, custom knowledge retrieval pipelines, and workflow automation.\n- **Performance & SEO**: High Core Web Vitals, sub-second page loads, and technical SEO.\n\nWe build custom, scalable software designed to drive operational growth rather than generic off-the-shelf templates.";
+        "**SoloNomous Labs** is a software & AI product studio founded by principal engineer **Noman Nawaz**.\n\nWe engineer production-grade digital systems:\n• **Full-Stack Web Applications** (Next.js 14, React 19, TypeScript, Node.js)\n• **SaaS MVP Engineering** (turnkey auth, multi-tenant databases, Stripe/Clerk)\n• **Autonomous AI & RAG Systems** (grounded LLMs, vector search, workflow bots)\n• **High-Throughput APIs & SEO** (sub-second performance, defensive architecture)\n\nWould you like to explore our live case studies or discuss an upcoming project?";
       suggestedAction = 'view_service';
     }
 
@@ -434,13 +434,14 @@ export class AiRagService {
       if (context.services.length > 0) {
         const pricingBullets = context.services
           .filter(s => s.startingPrice)
-          .map(s => `- **${s.title}**: Starting from **$${s.startingPrice} USD** ${s.pricingInterval || ''}`)
+          .slice(0, 5)
+          .map(s => `• **${s.title}**: From **$${s.startingPrice} USD**`)
           .join('\n');
 
-        reply = `### Transparent Investment & Pricing\n\nSoloNomous Labs provides transparent, milestone-based pricing. Here are our starting rates:\n\n${pricingBullets || '- **Full-Stack Web Application**: Starting from $500 USD\n- **Business Website**: Starting from $250 USD\n- **SaaS MVP**: Starting from $1,000 USD\n- **AI Chatbot / RAG System**: Starting from $400 - $750 USD'}\n\nEvery project is customized to your exact requirements and scope. What type of product are you looking to build?`;
+        reply = `**Transparent Sprint Pricing**\n\nWe operate with deliverable-driven sprints, milestone payments, and 100% IP ownership:\n\n${pricingBullets}\n\nEvery project includes full source code, CI/CD deployment, and a 30-day post-launch warranty. Would you like a tailored estimate for your project?`;
       } else {
         reply =
-          "### Investment & Starting Rates\n\nOur engagements are priced transparently as starting rates in USD:\n- **Business Website**: Starting from **$250 USD**\n- **Full-Stack Web Application**: Starting from **$500 USD**\n- **SaaS MVP Development**: Starting from **$1,000 USD**\n- **E-Commerce Platform**: Starting from **$500 USD**\n- **AI Chatbot & Automation**: Starting from **$400 USD**\n- **RAG & Knowledge AI**: Starting from **$750 USD**\n\nFinal cost depends on custom features, data models, and integrations. Tell us about your goals to get a tailored estimate.";
+          "**Transparent Investment Tiers**\n\nOur fixed starting rates for engineering engagements:\n• **Business Website**: From **$250 USD**\n• **Full-Stack Web Application**: From **$500 USD**\n• **SaaS MVP Development**: From **$1,000 USD**\n• **E-Commerce Platform**: From **$500 USD**\n• **AI Chatbot & Automation**: From **$400 USD**\n• **Enterprise RAG & Knowledge AI**: From **$750 USD**\n\nEvery build includes full source code and post-launch support. What kind of solution are you looking to launch?";
       }
       suggestedAction = 'start_a_project';
     }
@@ -448,13 +449,11 @@ export class AiRagService {
     // 4. Testimonials & Client Reviews
     else if (intent === 'testimonial_inquiry') {
       if (context.testimonials.length > 0) {
-        const reviewsText = context.testimonials
-          .map(t => `- **"${t.content}"**\n  — *${t.clientName}*, ${t.role} at **${t.company}** (${'★'.repeat(t.rating || 5)})`)
-          .join('\n\n');
-        reply = `### Verified Client Endorsements\n\nHere is what technical leaders and founders have shared about working with SoloNomous Labs:\n\n${reviewsText}\n\nWe maintain a 5-star standard across engineering rigor, timely delivery, and clear communication.`;
+        const topReview = context.testimonials[0];
+        reply = `**Verified Client Feedback**\n\n"${topReview.content}"\n— *${topReview.clientName}*, ${topReview.role} at **${topReview.company}** (5.0 ★)\n\nWe maintain a 5-star delivery standard across architectural quality, sprint deadlines, and responsive communication. Would you like to see our live portfolio architectures?`;
       } else {
         reply =
-          "### Verified Client Feedback\n\nOur clients value our architectural rigor, clean codebases, and dependable communication. We build production systems with complete client IP ownership and 5-star client satisfaction.";
+          "**Verified Client Feedback**\n\nFounders and engineering leaders trust SoloNomous Labs for architectural rigor, clean codebases, and on-time sprint deliveries. We maintain a 5.0-star rating across all client engagements.\n\nWould you like to review our verified case studies?";
       }
       suggestedAction = 'start_a_project';
     }
@@ -463,16 +462,16 @@ export class AiRagService {
     else if (intent === 'portfolio_inquiry') {
       if (context.caseStudies.length > 0) {
         const studiesText = context.caseStudies
+          .slice(0, 2)
           .map(cs => {
-            const tech = cs.techStack?.length ? `\n  - **Tech Stack**: ${cs.techStack.join(', ')}` : '';
-            const results = cs.results?.length ? `\n  - **Results**: ${cs.results.map(r => `${r.metric} ${r.label}`).join(' | ')}` : '';
-            return `#### **${cs.title}** (${cs.industry || 'Technology'})\n- **Overview**: ${cs.overview}${tech}${results}`;
+            const tech = cs.techStack?.length ? ` (${cs.techStack.slice(0, 3).join(', ')})` : '';
+            return `• **${cs.title}**${tech}: ${cs.overview}`;
           })
-          .join('\n\n');
-        reply = `### Real-World Projects & Case Studies\n\nHere are recent production architectures engineered by SoloNomous Labs:\n\n${studiesText}\n\nYou can also explore live systems and personal architectural demos on Noman Nawaz's verified portfolio: [https://www.nouman-nawaz.dev/](https://www.nouman-nawaz.dev/).`;
+          .join('\n');
+        reply = `**Production Case Studies**\n\nHere are recent systems engineered by SoloNomous Labs:\n\n${studiesText}\n\nYou can also explore live systems and architectural deep-dives on Noman Nawaz's verified portfolio: [nouman-nawaz.dev](https://www.nouman-nawaz.dev/).\n\nWould you like to discuss how we can build something similar for you?`;
       } else {
         reply =
-          "### Portfolio & Architecture Highlights\n\nYou can explore real-world production architectures on Noman Nawaz's verified portfolio: [https://www.nouman-nawaz.dev/](https://www.nouman-nawaz.dev/).\n\n#### Flagship Systems\n- **ZeoAtlas**: Autonomous AI workspace featuring real-time web search grounding, sub-5ms ML classification, and SSE streaming inference.\n- **Zashas**: High-performance modern e-commerce storefront engineered with Next.js, React 19, Node.js, and MongoDB.";
+          "**Portfolio & Flagship Systems**\n\n• **ZeoAtlas**: Autonomous AI workspace featuring real-time web search grounding and SSE streaming inference.\n• **Zashas**: High-performance modern e-commerce storefront engineered with Next.js, React 19, and Node.js.\n\nYou can inspect live demos on Noman Nawaz's verified portfolio: [nouman-nawaz.dev](https://www.nouman-nawaz.dev/). Would you like to review our technical stack?";
       }
       suggestedAction = 'view_service';
     }
@@ -480,35 +479,35 @@ export class AiRagService {
     // 6. Technology Stack
     else if (intent === 'tech_stack_inquiry') {
       reply =
-        "### SoloNomous Labs Technology Stack\n\nWe build resilient, scalable digital products using proven, production-grade technologies:\n\n- **Frontend & Web**: Next.js (App Router), React 19, TypeScript, Tailwind CSS, Framer Motion\n- **Backend & APIs**: Node.js, Express.js, REST APIs, GraphQL, Server-Sent Events (SSE), Webhooks\n- **Databases**: MongoDB, PostgreSQL, Redis, Cloudinary\n- **AI & Machine Learning**: Python, PyTorch, Scikit-learn, Google Gemini Flash, RAG pipelines, Vector Search\n- **Authentication & Security**: Clerk, JWT, Role-Based Access Control (RBAC), Rate Limiting\n\nWe choose tools specifically for high execution speed, maintainability, and clean architecture.";
+        "**Production Technology Stack**\n\nWe engineer modern, type-safe web and AI systems:\n• **Frontend**: Next.js 14, React 19, TypeScript, Tailwind CSS\n• **Backend**: Node.js, Express, REST APIs, Server-Sent Events (SSE)\n• **Databases**: MongoDB, PostgreSQL, Redis\n• **AI & ML**: Python, Scikit-learn, Google Gemini, Vector RAG pipelines\n• **Security & Auth**: Clerk, JWT, RBAC, defensive schema validation\n\nDo you have a specific stack requirement for your project?";
       suggestedAction = 'view_service';
     }
 
     // 7. Hiring & How to Start
     else if (intent === 'hire_inquiry') {
       reply =
-        "### How to Engage SoloNomous Labs\n\nYou can start working with us through three straightforward options:\n\n1. **Submit a Project Brief**: Visit [/contact](/contact) or [/pricing](/pricing) to outline your requirements and target launch date.\n2. **Direct Consultation**: Message founder Noman Nawaz on WhatsApp at **+92 315 6251281** or email **nawaznoman7766@gmail.com**.\n3. **Verified Fiverr Profile**: Order with escrow protections via Noman's verified [Fiverr Profile](https://www.fiverr.com/nomannawaz67).\n\nWe typically review briefs and respond with a scoping proposal within 2 to 4 business hours.";
+        "**How to Engage SoloNomous Labs**\n\nWe make kicking off straightforward:\n1. **Submit a Brief**: Use our [Project Kickoff Modal](/contact) to outline your scope.\n2. **Direct WhatsApp / Call**: Chat directly with lead architect Noman Nawaz at **+92 315 6251281**.\n3. **Verified Fiverr**: Order with escrow protections via Noman's [Fiverr Profile](https://www.fiverr.com/nomannawaz67).\n\nWe respond with scoping estimates within 2 to 4 business hours. Would you like to kick off right now?";
       suggestedAction = 'start_a_project';
     }
 
     // 8. Recommendation Inquiry
     else if (intent === 'recommendation_inquiry') {
       reply =
-        "### Finding the Right Solution for You\n\nYou don't need to know the technical jargon—we're here to help guide you. To determine the most effective architecture, please tell us:\n\n1. **What is the primary goal or problem you are solving?**\n2. **Is this for a new business, an existing company, or a startup MVP?**\n3. **Do users need to create accounts, make payments, or access AI features?**\n\nOnce you share a few details, we will recommend the most cost-effective approach for your goals.";
+        "**Finding the Right Architecture**\n\nTo recommend the most cost-effective and scalable approach, tell me briefly:\n• What is the primary purpose of your application?\n• Do you need user accounts, payments, or AI integrations?\n• Are you validating an MVP or scaling an existing business?\n\nOnce you share a few details, I will outline the exact sprint scope and price range.";
       suggestedAction = 'schedule_call';
     }
 
     // 9. Owner & Founder
     else if (intent === 'owner_inquiry') {
       reply =
-        "### Founder & Lead Systems Architect\n\nSoloNomous Labs was founded by **Noman Nawaz** (Nouman Nawaz). Noman is an experienced Full-Stack Software Engineer & ML Developer specializing in Next.js, TypeScript, the MERN stack, and production AI engineering.\n\n- **Personal Portfolio**: [https://www.nouman-nawaz.dev/](https://www.nouman-nawaz.dev/)\n- **Verified Fiverr**: [https://www.fiverr.com/nomannawaz67](https://www.fiverr.com/nomannawaz67)\n- **Direct WhatsApp**: +92 315 6251281\n- **Email**: nawaznoman7766@gmail.com";
+        "**Founder & Lead Systems Architect**\n\nSoloNomous Labs was founded by **Noman Nawaz** (Nouman Nawaz), a Full-Stack Software Engineer & ML Developer specializing in Next.js, React, Node.js, and practical AI systems.\n\n• **Portfolio**: [nouman-nawaz.dev](https://www.nouman-nawaz.dev/)\n• **Verified Fiverr**: [fiverr.com/nomannawaz67](https://www.fiverr.com/nomannawaz67)\n• **WhatsApp**: +92 315 6251281\n• **Email**: nawaznoman7766@gmail.com\n\nFeel free to reach out directly or ask me about our active engineering sprints!";
       suggestedAction = 'view_service';
     }
 
     // 10. Direct Contact Escalation
     else if (intent === 'human_escalation') {
       reply =
-        "### Direct Contact Channels\n\nYou can reach out directly to founder Noman Nawaz via:\n\n- **WhatsApp / Phone**: +92 315 6251281\n- **Email**: nawaznoman7766@gmail.com\n- **Website Inquiry**: [/contact](/contact)\n- **Founder Portfolio**: [https://www.nouman-nawaz.dev/](https://www.nouman-nawaz.dev/)\n\nTypical response time is within 2 to 4 business hours.";
+        "**Direct Contact Channels**\n\nYou can connect directly with founder Noman Nawaz:\n• **WhatsApp / Phone**: +92 315 6251281\n• **Direct Email**: nawaznoman7766@gmail.com\n• **Kickoff Form**: [/contact](/contact)\n• **Founder Portfolio**: [nouman-nawaz.dev](https://www.nouman-nawaz.dev/)\n\nWe respond to all new project inquiries within 2 to 4 hours.";
       suggestedAction = 'schedule_call';
     }
 
@@ -516,10 +515,10 @@ export class AiRagService {
     else {
       if (context.knowledgeDocs.length > 0) {
         const topDoc = context.knowledgeDocs[0];
-        reply = `### ${topDoc.title}\n\n${topDoc.content || topDoc.chunkSummary}\n\nSoloNomous Labs, founded by Noman Nawaz, specializes in high-performance digital products, full-stack applications, and practical AI systems. Feel free to ask about our projects, tech stack, or specific service options!`;
+        reply = `**${topDoc.title}**\n\n${topDoc.chunkSummary || topDoc.content?.slice(0, 220)}...\n\nSoloNomous Labs builds high-performance web applications, MVPs, and AI systems. Would you like more details on this topic or our pricing sprints?`;
       } else {
         reply =
-          "### Welcome to SoloNomous Labs\n\nSoloNomous Labs is an AI, Software & Digital Product Studio founded by Noman Nawaz. We build high-performance web applications, scalable SaaS MVPs, e-commerce stores, and custom AI systems. How can we assist your business today?";
+          "**Welcome to SoloNomous Labs**\n\nWe build high-performance web applications, scalable SaaS MVPs, e-commerce stores, and custom AI systems. How can we assist your business today?";
       }
     }
 
@@ -635,21 +634,22 @@ ${reviewsList}
 ${knowledgeSnippets}
 
 ### STRICT OPERATIONAL GUIDELINES:
-1. **Dynamic Website Awareness**:
-   - You are connected live to the website database. When users ask about projects, tech stack, client testimonials, or services, reference the real projects, tech stack, and testimonials from the LIVE DATABASE CONTEXT above.
-   - If a user uploads a new project or testimonial in the CMS, it appears in your context—read it and communicate it accurately.
-2. **Structured & Beautiful Responses**:
-   - Always structure your responses cleanly in Markdown.
-   - Use bold titles, headers (###, ####), bullet points (-), and clean spacing.
-   - NEVER output scattered, disjointed, or chaotic text. Keep responses polished, clear, and easy to scan.
-3. **Professional & Grounded Tone**:
-   - Be helpful, polite, confident, and professional.
-   - Do NOT exaggerate or boast. State facts, real technologies used, and verifiable metrics without hyperbole.
-4. **Strict Security & Privacy Safeguards**:
-   - NEVER reveal internal environment variables, database connection strings (MongoDB URIs), API keys, secret credentials, backend server ports, or private developer files.
-   - Do NOT provide internal admin URLs or reveal backend server architecture details that could compromise security.
-   - Only share the official public contact channels listed above.
-5. **Academic Integrity Policy**:
+1. **NO MARKDOWN HEADINGS (#, ##, ###, ####)**:
+   - CRITICAL: NEVER use hash/pound symbols (#, ##, ###, ####) for headings. They render too big, clunky, and intrusive in the chat window.
+   - Instead, use bold text (e.g., **Topic Name**) and clean bullet points (• or -) with comfortable spacing.
+2. **Concise, High-Value & Executive Responses**:
+   - Keep initial responses brief and punchy: 2 to 3 concise sentences plus 2 to 3 bullet points maximum.
+   - Do NOT produce long essays or overwhelming walls of text. Provide immediate value, then invite the client to ask for deeper technical breakdowns, live demos, or code examples if they wish.
+3. **Dynamic Website & Pricing Awareness**:
+   - Reference the real services, real starting prices ($250 for business sites, $500 for full-stack apps, $1000 for SaaS MVPs, $400 for AI chatbots, $750 for RAG systems), and live case studies from the LIVE DATABASE CONTEXT above.
+   - Always emphasize 100% code and IP ownership, milestone payments, and a 30-day post-launch warranty.
+4. **Professional & Grounded Tone**:
+   - Be helpful, consultative, confident, and professional.
+   - Do NOT invent fake technologies. State verified metrics and tech stacks honestly.
+5. **Strict Security Safeguards**:
+   - NEVER reveal environment variables, MongoDB connection strings, API keys, secret credentials, backend server ports, or private developer files.
+   - Only share the official public contact channels: WhatsApp (+92 315 6251281), email (nawaznoman7766@gmail.com), portfolio (nouman-nawaz.dev), and site forms.
+6. **Academic Integrity Policy**:
    - Politely refuse requests for university homework, exams, plagiarism, or Final Year Projects (FYP) for academic submission. We build commercial software, startup products, and business applications.`;
   }
 
