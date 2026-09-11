@@ -473,15 +473,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
             })}
           </nav>
 
-          {/* Desktop Right Action */}
+          {/* Desktop Right Action: Theme Toggle on most left, 3 identically sized buttons on the right */}
           <div className="hidden lg:flex items-center gap-2.5">
+            {/* 1. Theme Toggle on the most left */}
+            <ThemeToggle />
+
+            {/* 2. Client Login */}
             <SignedOut>
               <SignInButton mode="modal">
                 <button
-                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer shadow-xs ${
+                  type="button"
+                  className={`h-[38px] px-4 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-2 border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs shrink-0 ${
                     isDark
-                      ? 'bg-white/[0.03] hover:bg-white/[0.08] text-slate-300 hover:text-white border-white/10'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                      ? 'bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white border-white/10 hover:border-white/20'
+                      : 'bg-slate-100 hover:bg-slate-200/80 text-slate-800 hover:text-slate-950 border-slate-300/80 hover:border-slate-400'
                   }`}
                   title="Client Portal Sign In"
                 >
@@ -493,37 +498,38 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
 
             <SignedIn>
               <div
-                className={`flex items-center gap-2 px-2 py-1 rounded-xl border ${
-                  isDark ? 'bg-white/[0.03] border-white/10' : 'bg-slate-100 border-slate-300'
+                className={`h-[38px] px-2.5 rounded-xl border inline-flex items-center justify-center shrink-0 ${
+                  isDark ? 'bg-white/[0.04] border-white/10' : 'bg-slate-100 border-slate-300'
                 }`}
               >
                 <UserButton afterSignOutUrl="/" />
               </div>
             </SignedIn>
 
-            {/* Single Theme Toggle */}
-            <ThemeToggle />
-
+            {/* 3. Studio CMS */}
             <Link
               href="/admin"
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer group shadow-xs ${
+              className={`h-[38px] px-4 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-2 border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs shrink-0 ${
                 isDark
-                  ? 'bg-white/[0.04] hover:bg-purple-600/10 text-slate-300 hover:text-purple-300 border-white/10 hover:border-purple-500/40'
-                  : 'bg-slate-100 hover:bg-purple-50 text-slate-800 hover:text-purple-800 border-slate-300 hover:border-purple-300'
+                  ? 'bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white border-white/10 hover:border-white/20'
+                  : 'bg-slate-100 hover:bg-slate-200/80 text-slate-800 hover:text-slate-950 border-slate-300/80 hover:border-slate-400'
               }`}
               title="Open SoloNomous Studio CMS & Admin Portal"
             >
               <Shield className="w-3.5 h-3.5 text-purple-500 transition-colors" />
               <span>Studio CMS</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
             </Link>
 
+            {/* 4. Start a Project (React Bits Shiny Shimmer Button) */}
             <button
               onClick={onStartProject}
-              className="relative inline-flex items-center gap-2.5 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white text-sm font-semibold shadow-lg shadow-purple-900/30 hover:shadow-purple-700/40 border border-purple-400/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+              className="relative h-[38px] px-5 rounded-xl bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white text-xs font-semibold shadow-md shadow-purple-900/30 hover:shadow-purple-700/40 border border-purple-400/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer inline-flex items-center justify-center gap-2 overflow-hidden group shrink-0"
             >
-              <Rocket className="w-4 h-4 text-purple-200" />
-              <span>Start a Project</span>
+              {/* React Bits shiny shimmer shine line */}
+              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out pointer-events-none" />
+              <Rocket className="w-3.5 h-3.5 text-purple-200 shrink-0" />
+              <span className="relative z-10">Start a Project</span>
             </button>
           </div>
 
