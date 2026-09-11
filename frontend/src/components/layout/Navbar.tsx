@@ -182,14 +182,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
               : 'bg-white/95 backdrop-blur-md py-4'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
-          {/* Brand Logo - Enlarged and punchy */}
-          <div className="flex items-center shrink-0">
-            <BrandLogo variant="auto" width={240} height={54} className="py-0.5" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          {/* Brand Logo */}
+          <div className="flex items-center">
+            <BrandLogo variant="auto" width={180} height={40} />
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
 
@@ -204,20 +204,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
                     {/* Main Services Link: Clicking opens /services, hovering opens dropdown */}
                     <Link
                       href={link.href}
-                      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      className={`inline-flex items-center gap-1 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                         isActive || pathname.startsWith('/services')
                           ? isDark
-                            ? 'text-white font-semibold bg-white/10'
-                            : 'text-purple-700 font-semibold bg-purple-500/10'
+                            ? 'text-white bg-white/10'
+                            : 'text-purple-700 bg-purple-50 font-semibold'
                           : isDark
                             ? 'text-slate-300 hover:text-white hover:bg-white/5'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                            : 'text-slate-700 hover:text-purple-700 hover:bg-slate-100'
                       }`}
                     >
-                      <span>{link.name}</span>
+                      {link.name}
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                          servicesOpen ? 'rotate-180 text-purple-500' : 'text-slate-400'
+                        className={`w-4 h-4 transition-transform duration-200 ${
+                          servicesOpen ? 'rotate-180 text-purple-400' : 'text-slate-400'
                         }`}
                       />
                     </Link>
@@ -457,14 +457,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
                       ? isDark
-                        ? 'text-white font-semibold bg-white/10'
-                        : 'text-purple-700 font-semibold bg-purple-500/10'
+                        ? 'text-white bg-white/10'
+                        : 'text-purple-700 bg-purple-50 font-semibold'
                       : isDark
                         ? 'text-slate-300 hover:text-white hover:bg-white/5'
-                        : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100/70'
+                        : 'text-slate-700 hover:text-purple-700 hover:bg-slate-100'
                   }`}
                 >
                   {link.name}
@@ -473,96 +473,87 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
             })}
           </nav>
 
-          {/* Desktop Right Action - Clean Architectural Hierarchy */}
-          <div className="hidden lg:flex items-center gap-2 shrink-0">
-            {/* 1. Client Login (Clean ghost action) */}
+          {/* Desktop Right Action */}
+          <div className="hidden lg:flex items-center gap-2.5">
             <SignedOut>
               <SignInButton mode="modal">
                 <button
-                  type="button"
-                  className={`h-9 px-3 rounded-lg inline-flex items-center gap-1.5 text-sm font-medium transition-colors cursor-pointer shrink-0 ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer shadow-xs ${
                     isDark
-                      ? 'text-slate-300 hover:text-white hover:bg-white/5'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      ? 'bg-white/[0.03] hover:bg-white/[0.08] text-slate-300 hover:text-white border-white/10'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
                   }`}
                   title="Client Portal Sign In"
                 >
-                  <User className="w-4 h-4 text-purple-500 shrink-0" />
-                  <span className="whitespace-nowrap">Client Login</span>
+                  <User className="w-3.5 h-3.5 text-purple-500" />
+                  <span>Client Login</span>
                 </button>
               </SignInButton>
             </SignedOut>
 
             <SignedIn>
               <div
-                className={`h-9 px-2 rounded-lg flex items-center justify-center shrink-0 ${
-                  isDark ? 'bg-white/5 border border-white/10' : 'bg-slate-100 border border-slate-200'
+                className={`flex items-center gap-2 px-2 py-1 rounded-xl border ${
+                  isDark ? 'bg-white/[0.03] border-white/10' : 'bg-slate-100 border-slate-300'
                 }`}
               >
                 <UserButton afterSignOutUrl="/" />
               </div>
             </SignedIn>
 
-            {/* 2. Studio CMS (Subtle administrative status badge) */}
+            {/* Single Theme Toggle */}
+            <ThemeToggle />
+
             <Link
               href="/admin"
-              className={`h-9 px-3 rounded-lg inline-flex items-center gap-1.5 text-xs font-semibold transition-all cursor-pointer shrink-0 border ${
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer group shadow-xs ${
                 isDark
-                  ? 'bg-purple-950/40 hover:bg-purple-900/50 text-purple-300 border-purple-800/40'
-                  : 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200/80'
+                  ? 'bg-white/[0.04] hover:bg-purple-600/10 text-slate-300 hover:text-purple-300 border-white/10 hover:border-purple-500/40'
+                  : 'bg-slate-100 hover:bg-purple-50 text-slate-800 hover:text-purple-800 border-slate-300 hover:border-purple-300'
               }`}
               title="Open SoloNomous Studio CMS & Admin Portal"
             >
-              <Shield className="w-3.5 h-3.5 text-purple-500 shrink-0" />
-              <span className="whitespace-nowrap">Studio CMS</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <Shield className="w-3.5 h-3.5 text-purple-500 transition-colors" />
+              <span>Studio CMS</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             </Link>
 
-            {/* 3. Theme Toggle (Minimal icon button) */}
-            <ThemeToggle />
-
-            {/* Hairline Divider */}
-            <div className={`h-5 w-[1px] mx-1 ${isDark ? 'bg-white/15' : 'bg-slate-200'}`} />
-
-            {/* 4. Primary CTA */}
             <button
-              type="button"
               onClick={onStartProject}
-              className="h-9 px-4.5 rounded-lg inline-flex items-center gap-2 text-sm font-semibold whitespace-nowrap bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 text-white shadow-md shadow-purple-600/25 hover:shadow-purple-600/40 border border-purple-400/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shrink-0"
+              className="relative inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white text-sm font-semibold shadow-lg shadow-purple-900/30 hover:shadow-purple-700/40 border border-purple-400/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
             >
-              <Rocket className="w-3.5 h-3.5 text-purple-200 shrink-0" />
-              <span className="whitespace-nowrap">Start a Project</span>
+              <Rocket className="w-4 h-4 text-purple-200" />
+              <span>Start a Project</span>
             </button>
           </div>
 
           {/* Mobile Right Action: ONLY below lg, single theme toggle, CMS, and burger button */}
-          <div className="flex lg:hidden items-center gap-2 shrink-0">
+          <div className="flex lg:hidden items-center gap-2">
             <ThemeToggle />
             <Link
               href="/admin"
-              className={`h-9 px-3 rounded-lg border transition-colors cursor-pointer flex items-center justify-center gap-1.5 text-xs font-semibold shrink-0 ${
+              className={`p-2 rounded-xl border transition-colors cursor-pointer ${
                 isDark
-                  ? 'text-purple-300 hover:text-white bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/30'
-                  : 'text-purple-800 hover:text-purple-950 bg-purple-50 hover:bg-purple-100 border-purple-200'
+                  ? 'text-purple-400 hover:text-white hover:bg-white/5 border-purple-500/30'
+                  : 'text-purple-700 hover:text-purple-900 hover:bg-purple-50 border-purple-300'
               }`}
               title="Admin Portal"
             >
-              <Shield className="w-3.5 h-3.5 text-purple-500" />
-              <span>CMS</span>
+              <Shield className="w-5 h-5" />
             </Link>
 
             <button
               type="button"
               onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className={`h-9 w-9 rounded-lg border flex items-center justify-center transition-colors cursor-pointer shrink-0 focus:outline-hidden ${
+              className={`p-2 rounded-xl border transition-colors cursor-pointer focus:outline-hidden ${
                 isDark
-                  ? 'bg-white/5 text-slate-300 hover:text-white border-white/10'
-                  : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-slate-200'
+                  ? 'text-slate-300 hover:text-white hover:bg-white/5 border-white/10'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100 border-slate-300'
               }`}
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-4.5 h-4.5 text-purple-500" /> : <Menu className="w-4.5 h-4.5" />}
+              {mobileMenuOpen ? <X className="w-6 h-6 text-purple-500" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
