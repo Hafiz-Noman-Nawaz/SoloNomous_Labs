@@ -19,6 +19,7 @@ router.delete('/admin/faqs/:id', requireAdminAuth, requireAdminPermission('canMa
 
 // Testimonials
 router.get('/testimonials', ContentController.getTestimonials);
+router.get('/admin/testimonials', requireAdminAuth, requireAdminPermission('canManageSettings'), ContentController.getTestimonials);
 router.post('/testimonials/submit', submissionLimiter, ContentController.submitClientReview);
 router.post('/admin/testimonials', requireAdminAuth, requireAdminPermission('canManageSettings'), ContentController.createTestimonial);
 router.put('/admin/testimonials/:id', requireAdminAuth, requireAdminPermission('canManageSettings'), ContentController.updateTestimonial);

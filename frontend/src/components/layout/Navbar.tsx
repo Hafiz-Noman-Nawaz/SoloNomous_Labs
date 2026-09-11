@@ -143,18 +143,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
     });
   };
 
-  const activeCategory = categories.find(c => c.slug === activeCategorySlug) || categories[0];
+  // Only display categories that actually have at least 1 service
+  const activeCategories = categories.filter((cat) => {
+    const count = getServicesForCategory(cat.name).length;
+    return count > 0 || (cat.serviceCount !== undefined && cat.serviceCount > 0);
+  });
+
+  const activeCategory = activeCategories.find(c => c.slug === activeCategorySlug) || activeCategories[0] || categories[0];
   const activeCategoryServices = activeCategory ? getServicesForCategory(activeCategory.name) : [];
 
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? isDark
-              ? 'glass-nav py-3 shadow-lg shadow-black/40'
-              : 'bg-white/90 backdrop-blur-md py-3 shadow-md border-b border-slate-200'
-            : 'bg-transparent py-5'
+              ? 'bg-[#0B0A12] py-3 shadow-2xl shadow-black/80 border-b border-white/15'
+              : 'bg-white py-3 shadow-md border-b border-slate-200'
+            : isDark
+              ? 'bg-[#07060B]/95 backdrop-blur-md py-4'
+              : 'bg-white/95 backdrop-blur-md py-4'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -197,24 +205,25 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
                       />
                     </Link>
 
-                    {/* Services Mega Dropdown */}
+                    {/* Services Mega Dropdown (Solid, 100% Opaque to prevent background bleed) */}
                     {servicesOpen && (
                       <div
-                        className={`absolute top-full -left-16 xl:left-0 mt-1 w-[660px] rounded-2xl border shadow-2xl backdrop-blur-2xl z-50 p-2.5 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 ${
+                        className={`absolute top-full -left-16 xl:left-0 mt-2 w-[680px] rounded-2xl border shadow-2xl z-50 p-3 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 ${
                           isDark
-                            ? 'bg-[#12111A]/98 border-white/10 text-white'
-                            : 'bg-white border-slate-200 text-slate-900'
+                            ? 'bg-[#0E0C17] border-white/20 text-white shadow-black'
+                            : 'bg-white border-slate-200 text-slate-900 shadow-2xl'
                         }`}
+                        style={{ isolation: 'isolate' }}
                         onMouseEnter={handleMouseEnterServices}
                         onMouseLeave={handleMouseLeaveServices}
                       >
-                        <div className="grid grid-cols-12 gap-2">
-                          {/* Left Column: Categories List */}
+                        <div className="grid grid-cols-12 gap-3">
+                          {/* Left Column: Active Categories List */}
                           <div
-                            className={`col-span-5 p-2 rounded-xl border flex flex-col justify-between ${
+                            className={`col-span-5 p-2.5 rounded-xl border flex flex-col justify-between ${
                               isDark
-                                ? 'bg-white/[0.02] border-white/5'
-                                : 'bg-slate-50 border-slate-100'
+                                ? 'bg-[#151322] border-white/10'
+                                : 'bg-slate-50 border-slate-200'
                             }`}
                           >
                             <div>
@@ -222,7 +231,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
                                 Service Categories
                               </div>
                               <div className="space-y-1">
-                                {categories.map((cat) => {
+                                {activeCategories.map((cat) => {
                                   const Icon = getCategoryIcon(cat.slug || cat.name);
                                   const isCatActive = activeCategorySlug === cat.slug;
                                   const catServices = getServicesForCategory(cat.name);
@@ -234,8 +243,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
                                       className={`group flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all ${
                                         isCatActive
                                           ? isDark
-                                            ? 'bg-purple-600/20 border border-purple-500/30 text-white'
-                                            : 'bg-purple-100/80 border border-purple-300 text-purple-950 font-semibold'
+                                            ? 'bg-purple-600/30 border border-purple-500/50 text-white shadow-sm'
+                                            : 'bg-purple-100/90 border border-purple-300 text-purple-950 font-semibold'
                                           : isDark
                                             ? 'hover:bg-white/5 text-slate-300 border border-transparent'
                                             : 'hover:bg-slate-200/60 text-slate-700 border border-transparent'
@@ -311,7 +320,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
                           </div>
 
                           {/* Right Column: Dynamic Services Under Hovered Category */}
-                          <div className="col-span-7 p-2.5 flex flex-col justify-between">
+                          <div className={`col-span-7 p-3 rounded-xl border flex flex-col justify-between ${
+                            isDark ? 'bg-[#151322] border-white/10' : 'bg-slate-50/70 border-slate-200'
+                          }`}>
                             {activeCategory ? (
                               <div>
                                 <div
@@ -589,7 +600,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
                             Explore All Services Page →
                           </Link>
 
-                          {categories.map((cat) => {
+                          {activeCategories.map((cat) => {
                             const isCatOpen = mobileCatExpanded === cat.slug;
                             const catSvcs = getServicesForCategory(cat.name);
 

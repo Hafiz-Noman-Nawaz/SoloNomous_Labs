@@ -1,5 +1,8 @@
 import { KnowledgeDocument, IKnowledgeDocument } from '../models/KnowledgeAndChat';
 import { Lead } from '../models/Lead';
+import { CaseStudy, ICaseStudy } from '../models/CaseStudy';
+import { Service, IService } from '../models/Service';
+import { Testimonial, ITestimonial } from '../models/FeedbackAndFaq';
 
 export interface ChatCompletionResult {
   reply: string;
@@ -11,6 +14,13 @@ export interface ChatCompletionResult {
   intentDetected: string;
   leadPromptSuggested: boolean;
   suggestedAction?: 'schedule_call' | 'start_a_project' | 'view_service' | 'none';
+}
+
+export interface WebsiteRagContext {
+  knowledgeDocs: IKnowledgeDocument[];
+  caseStudies: ICaseStudy[];
+  services: IService[];
+  testimonials: ITestimonial[];
 }
 
 export class AiRagService {
@@ -125,6 +135,7 @@ export class AiRagService {
       q.includes('technologies') ||
       q.includes('tech stack') ||
       q.includes('what do you use') ||
+      q.includes('framework') ||
       q.includes('tools')
     ) {
       return { intent: 'tech_stack_inquiry', categoryHint: 'faqs', shouldCaptureLead: false };
@@ -140,7 +151,20 @@ export class AiRagService {
       return { intent: 'hire_inquiry', categoryHint: 'faqs', shouldCaptureLead: true };
     }
 
-    // 12. Owner & Founder
+    // 12. Testimonials / Client feedback / Reviews
+    if (
+      q.includes('review') ||
+      q.includes('testimonial') ||
+      q.includes('feedback') ||
+      q.includes('rating') ||
+      q.includes('client say') ||
+      q.includes('past clients') ||
+      q.includes('satisfied')
+    ) {
+      return { intent: 'testimonial_inquiry', categoryHint: 'testimonials', shouldCaptureLead: false };
+    }
+
+    // 13. Owner & Founder
     if (
       q.includes('owner') ||
       q.includes('founder') ||
@@ -154,19 +178,22 @@ export class AiRagService {
       return { intent: 'owner_inquiry', categoryHint: 'company', shouldCaptureLead: false };
     }
 
-    // 13. Past projects / Portfolio
+    // 14. Past projects / Portfolio / Case studies
     if (
       q.includes('portfolio') ||
       q.includes('project') ||
       q.includes('projects') ||
       q.includes('case study') ||
+      q.includes('case studies') ||
       q.includes('work') ||
-      q.includes('demo')
+      q.includes('demo') ||
+      q.includes('zeoatlas') ||
+      q.includes('zashas')
     ) {
       return { intent: 'portfolio_inquiry', categoryHint: 'case_studies', shouldCaptureLead: false };
     }
 
-    // 14. What do you do
+    // 15. What do you do
     if (
       q.includes('what do you do') ||
       q.includes('what does solonomous labs do') ||
@@ -177,7 +204,7 @@ export class AiRagService {
       return { intent: 'company_overview', categoryHint: 'company', shouldCaptureLead: false };
     }
 
-    // 15. Contact
+    // 16. Contact
     if (
       q.includes('contact') ||
       q.includes('call') ||
@@ -197,7 +224,7 @@ export class AiRagService {
    */
   public static async retrieveRelevantKnowledge(
     query: string,
-    limit = 3
+    limit = 4
   ): Promise<IKnowledgeDocument[]> {
     try {
       const words = query
@@ -233,15 +260,87 @@ export class AiRagService {
         }).limit(limit);
       }
 
-      // If still empty, return general company knowledge
+      // If still empty, return foundational company knowledge
       if (docs.length === 0) {
-        docs = await KnowledgeDocument.find({ active: true }).limit(2);
+        docs = await KnowledgeDocument.find({ active: true }).limit(3);
       }
 
       return docs;
     } catch (error) {
       console.warn('Knowledge retrieval error (continuing with default fallback):', error);
       return [];
+    }
+  }
+
+  /**
+   * Dynamically query the live website database (Services, Case Studies/Projects, Testimonials, Knowledge)
+   * so the AI assistant always knows the latest additions made by the user in the CMS!
+   */
+  public static async retrieveWebsiteContext(query: string): Promise<WebsiteRagContext> {
+    try {
+      const q = query.toLowerCase();
+      const words = query
+        .replace(/[^\w\s]/gi, '')
+        .split(/\s+/)
+        .filter((w) => w.length > 2);
+      const regexPatterns = words.map((w) => new RegExp(w, 'i'));
+
+      // 1. Knowledge Base
+      const knowledgeDocs = await this.retrieveRelevantKnowledge(query, 4);
+
+      // 2. Services (fetch active services, prioritizing any matching user query)
+      let servicesQuery: any = { active: true };
+      if (words.length > 0 && (q.includes('service') || q.includes('price') || q.includes('cost') || q.includes('build') || q.includes('app') || q.includes('web'))) {
+        servicesQuery = {
+          active: true,
+          $or: [
+            { title: { $in: regexPatterns } },
+            { summary: { $in: regexPatterns } },
+            { category: { $in: regexPatterns } },
+            { techStack: { $in: regexPatterns } }
+          ]
+        };
+      }
+      let services = await Service.find(servicesQuery).sort({ displayOrder: 1 }).limit(8).lean();
+      if (services.length === 0) {
+        services = await Service.find({ active: true }).sort({ displayOrder: 1 }).limit(6).lean();
+      }
+
+      // 3. Projects & Case Studies (fetch published projects matching query or latest additions)
+      let caseStudiesQuery: any = { published: true };
+      if (words.length > 0 && (q.includes('project') || q.includes('portfolio') || q.includes('case') || q.includes('work') || q.includes('tech') || q.includes('stack') || q.includes('deliver'))) {
+        caseStudiesQuery = {
+          published: true,
+          $or: [
+            { title: { $in: regexPatterns } },
+            { overview: { $in: regexPatterns } },
+            { techStack: { $in: regexPatterns } },
+            { deliverables: { $in: regexPatterns } }
+          ]
+        };
+      }
+      let caseStudies = await CaseStudy.find(caseStudiesQuery).sort({ featured: -1, createdAt: -1 }).limit(6).lean();
+      if (caseStudies.length === 0) {
+        caseStudies = await CaseStudy.find({ published: true }).sort({ createdAt: -1 }).limit(5).lean();
+      }
+
+      // 4. Testimonials (active client reviews)
+      const testimonials = await Testimonial.find({ active: true }).sort({ rating: -1, createdAt: -1 }).limit(5).lean();
+
+      return {
+        knowledgeDocs,
+        caseStudies: caseStudies as any,
+        services: services as any,
+        testimonials: testimonials as any
+      };
+    } catch (err) {
+      console.warn('Error retrieving website context for RAG:', err);
+      return {
+        knowledgeDocs: [],
+        caseStudies: [],
+        services: [],
+        testimonials: []
+      };
     }
   }
 
@@ -253,16 +352,47 @@ export class AiRagService {
     history: Array<{ role: string; content: string }> = []
   ): Promise<ChatCompletionResult> {
     const { intent, shouldCaptureLead } = this.detectIntent(userMessage);
-    const retrievedDocs = await this.retrieveRelevantKnowledge(userMessage);
+    const context = await this.retrieveWebsiteContext(userMessage);
     const q = userMessage.toLowerCase();
 
-    const citations = retrievedDocs.map((doc) => ({
-      title: doc.title,
-      category: doc.category,
-      sourceUrl: doc.sourceUrl || `/knowledge/${doc._id}`
-    }));
+    const citations: Array<{ title: string; category: string; sourceUrl?: string }> = [];
 
-    // Ensure official portfolio is cited for owner/portfolio queries
+    // Citations from Knowledge base
+    for (const doc of context.knowledgeDocs) {
+      citations.push({
+        title: doc.title,
+        category: doc.category,
+        sourceUrl: doc.sourceUrl || `/knowledge/${doc._id}`
+      });
+    }
+
+    // Dynamic Citations from matching Services
+    if (intent === 'pricing_inquiry' || intent === 'saas_inquiry' || intent === 'small_biz_website' || intent === 'document_ai' || intent === 'speed_slow_website' || intent === 'recommendation_inquiry') {
+      for (const s of context.services.slice(0, 2)) {
+        if (!citations.some(c => c.sourceUrl === `/services/${s.slug}`)) {
+          citations.push({
+            title: `Service: ${s.title}`,
+            category: 'services',
+            sourceUrl: `/services/${s.slug}`
+          });
+        }
+      }
+    }
+
+    // Dynamic Citations from matching Case Studies / Projects
+    if (intent === 'portfolio_inquiry' || intent === 'tech_stack_inquiry') {
+      for (const cs of context.caseStudies.slice(0, 3)) {
+        if (!citations.some(c => c.sourceUrl === `/work/${cs.slug}`)) {
+          citations.push({
+            title: `Case Study: ${cs.title}`,
+            category: 'case_studies',
+            sourceUrl: `/work/${cs.slug}`
+          });
+        }
+      }
+    }
+
+    // Official Founder Portfolio citation
     if ((intent === 'owner_inquiry' || intent === 'portfolio_inquiry') && !citations.some(c => c.sourceUrl?.includes('nouman-nawaz.dev'))) {
       citations.unshift({
         title: 'Noman Nawaz — Personal Portfolio & Live Projects',
@@ -271,7 +401,7 @@ export class AiRagService {
       });
     }
 
-    // Ensure verified Fiverr profile is cited for hiring queries
+    // Verified Fiverr citation
     if ((intent === 'hire_inquiry' || intent === 'pricing_inquiry') && !citations.some(c => c.sourceUrl?.includes('fiverr.com'))) {
       citations.push({
         title: 'Noman Nawaz — Verified Fiverr Profile',
@@ -283,155 +413,113 @@ export class AiRagService {
     let reply = '';
     let suggestedAction: 'schedule_call' | 'start_a_project' | 'view_service' | 'none' = 'none';
 
-    // ==================== INTENT SYNTHESIS ENGINE ====================
+    // ==================== LOCAL STRUCTURED SYNTHESIS ENGINE ====================
 
     // 1. Strict Academic Policy Refusal
     if (intent === 'academic_refusal') {
       reply =
-        "No, SoloNomous Labs does not create university assignments, homework, or Final Year Projects (FYPs) for academic submission.\n\nWe are a professional software and AI product studio focused exclusively on building real-world software, commercial web applications, and startup products for businesses and entrepreneurs. If you are developing a genuine commercial application or startup idea, we would be glad to help you architect and build it.";
+        "### Academic Integrity Policy Notice\n\nNo, SoloNomous Labs does not create university assignments, homework, thesis, or Final Year Projects (FYPs) for academic submission.\n\nWe are a professional software and AI product studio focused exclusively on building commercial applications, SaaS products, and business web solutions. If you are launching a genuine commercial startup or business application, we would be pleased to assist you.";
       suggestedAction = 'none';
     }
 
     // 2. Company Overview ("What does SoloNomous Labs do?")
     else if (intent === 'company_overview') {
       reply =
-        "SoloNomous Labs is a professional **Software & AI Product Studio** led by founder and principal engineer Noman Nawaz. We build practical websites, custom web applications, SaaS MVPs, e-commerce platforms, AI chatbots, and machine-learning solutions for businesses, startups, and entrepreneurs.\n\nRather than selling cheap templates or generic marketing services, we engineer production-ready, custom software designed to solve actual operational problems and grow your business.";
+        "### About SoloNomous Labs\n\nSoloNomous Labs is a professional **Software & AI Product Studio** founded by lead engineer Noman Nawaz. We design, architect, and deploy reliable digital products for businesses, startups, and enterprises.\n\n#### Core Capabilities\n- **Full-Stack Web Applications**: Modern Next.js, React, Node.js, and TypeScript architectures.\n- **SaaS MVP Engineering**: Rapid, production-ready MVP development with authentication, billing, and database workflows.\n- **AI & RAG Systems**: Grounded AI assistants, custom knowledge retrieval pipelines, and workflow automation.\n- **Performance & SEO**: High Core Web Vitals, sub-second page loads, and technical SEO.\n\nWe build custom, scalable software designed to drive operational growth rather than generic off-the-shelf templates.";
       suggestedAction = 'view_service';
     }
 
     // 3. Pricing Specifics
     else if (intent === 'pricing_inquiry') {
-      if (q.includes('simple business website') || q.includes('simple website')) {
-        reply =
-          "A professional business website starts from **$250 USD**. The final price depends on the number of pages, custom design complexity, integrations, and content requirements.";
-        suggestedAction = 'start_a_project';
-      } else if (q.includes('full-stack') || q.includes('full stack')) {
-        reply =
-          "Full-stack web applications start from **$500 USD** because they include dedicated backend functionality, custom databases (MongoDB or PostgreSQL), authentication, and custom business workflows.";
-        suggestedAction = 'start_a_project';
-      } else if (q.includes('online store') || q.includes('e-commerce') || q.includes('ecommerce')) {
-        reply =
-          "Our custom e-commerce websites start from **$500 USD**. The final price depends on your product catalog size, checkout flow, customer accounts, order management features, and payment integrations.";
-        suggestedAction = 'start_a_project';
-      } else if (q.includes('chatbot') || q.includes('ai bot')) {
-        reply =
-          "A dedicated AI chatbot starts from **$400 USD**. It includes a conversational chat interface, streaming responses, suggested questions, lead capture, and deployment on your site.";
-        suggestedAction = 'start_a_project';
-      } else if (q.includes('rag') || q.includes('knowledge-based') || q.includes('knowledge base')) {
-        reply =
-          "Our RAG (Retrieval-Augmented Generation) and knowledge-based AI systems start from **$750 USD**. This includes document ingestion pipelines, vector embeddings, semantic vector search, and grounded AI responses with verifiable source citations.";
-        suggestedAction = 'start_a_project';
-      } else if (q.includes('maintenance')) {
-        reply =
-          "Website maintenance and continuous development starts from **$100 USD per month**. The final arrangement depends on how much dedicated development time, update frequency, and monitoring support your application needs.";
-        suggestedAction = 'start_a_project';
-      } else if (q.includes('ai website')) {
-        reply =
-          "If you mean a website with AI functionality, the price depends on what the AI needs to do. Basic AI integration starts from **$300 USD**, while a dedicated conversational AI chatbot starts from **$400 USD**. More advanced RAG or knowledge-based AI systems start from **$750 USD**.";
-        suggestedAction = 'start_a_project';
-      } else if (q.includes('$500') || q.includes('500 dollars') || q.includes('500 usd')) {
-        reply =
-          "With a budget of $500 USD, we can build:\n• A complete **Business Website** (starts from $250 USD) with custom pages, SEO setup, and mobile responsiveness.\n• A **Full-Stack Web Application** (starts from $500 USD) with custom backend, database, and user login.\n• An **E-Commerce Storefront** (starts from $500 USD) with product catalog, cart, and checkout flow.\n• An **AI Chatbot** (starts from $400 USD) or **AI Workflow Integration** (starts from $300 USD).\n\nWhat type of project are you looking to launch?";
-        suggestedAction = 'start_a_project';
+      if (context.services.length > 0) {
+        const pricingBullets = context.services
+          .filter(s => s.startingPrice)
+          .map(s => `- **${s.title}**: Starting from **$${s.startingPrice} USD** ${s.pricingInterval || ''}`)
+          .join('\n');
+
+        reply = `### Transparent Investment & Pricing\n\nSoloNomous Labs provides transparent, milestone-based pricing. Here are our starting rates:\n\n${pricingBullets || '- **Full-Stack Web Application**: Starting from $500 USD\n- **Business Website**: Starting from $250 USD\n- **SaaS MVP**: Starting from $1,000 USD\n- **AI Chatbot / RAG System**: Starting from $400 - $750 USD'}\n\nEvery project is customized to your exact requirements and scope. What type of product are you looking to build?`;
       } else {
         reply =
-          "Our services are priced transparently as starting prices in USD:\n• **Business Website Development**: Starting from $250 USD\n• **Full-Stack Web Application**: Starting from $500 USD\n• **SaaS MVP Development**: Starting from $1,000 USD\n• **E-Commerce Development**: Starting from $500 USD\n• **AI Chatbot Development**: Starting from $400 USD\n• **RAG Knowledge AI Systems**: Starting from $750 USD\n• **Website Maintenance**: Starting from $100 USD/month\n\nEvery price is a starting price; the final scope depends on your specific features and requirements.";
-        suggestedAction = 'start_a_project';
+          "### Investment & Starting Rates\n\nOur engagements are priced transparently as starting rates in USD:\n- **Business Website**: Starting from **$250 USD**\n- **Full-Stack Web Application**: Starting from **$500 USD**\n- **SaaS MVP Development**: Starting from **$1,000 USD**\n- **E-Commerce Platform**: Starting from **$500 USD**\n- **AI Chatbot & Automation**: Starting from **$400 USD**\n- **RAG & Knowledge AI**: Starting from **$750 USD**\n\nFinal cost depends on custom features, data models, and integrations. Tell us about your goals to get a tailored estimate.";
       }
-    }
-
-    // 4. Restaurant / Small Business Scenario
-    else if (intent === 'small_biz_website') {
-      reply =
-        "For a restaurant or local business, I recommend starting with our **Business Website Development** service (starting from **$250 USD**).\n\nThis gives you a fast, mobile-friendly website showcasing your menu, location, operating hours, photos, and contact/reservation inquiries. You do not need a complex full-stack web application unless you need custom table reservations, live online food delivery ordering, or customer account management.";
       suggestedAction = 'start_a_project';
     }
 
-    // 5. SaaS Idea Scoping
-    else if (intent === 'saas_inquiry') {
-      reply =
-        "If you have a software startup idea, I recommend our **SaaS MVP Development** service (starting from **$1,000 USD**).\n\nRather than spending months building every speculative feature, an MVP (Minimum Viable Product) focuses on the core features your early users need to get value. It includes user authentication, the primary functional tool, user dashboard, admin controls, and production deployment so you can begin acquiring real users quickly.";
+    // 4. Testimonials & Client Reviews
+    else if (intent === 'testimonial_inquiry') {
+      if (context.testimonials.length > 0) {
+        const reviewsText = context.testimonials
+          .map(t => `- **"${t.content}"**\n  — *${t.clientName}*, ${t.role} at **${t.company}** (${'★'.repeat(t.rating || 5)})`)
+          .join('\n\n');
+        reply = `### Verified Client Endorsements\n\nHere is what technical leaders and founders have shared about working with SoloNomous Labs:\n\n${reviewsText}\n\nWe maintain a 5-star standard across engineering rigor, timely delivery, and clear communication.`;
+      } else {
+        reply =
+          "### Verified Client Feedback\n\nOur clients value our architectural rigor, clean codebases, and dependable communication. We build production systems with complete client IP ownership and 5-star client satisfaction.";
+      }
       suggestedAction = 'start_a_project';
     }
 
-    // 6. Adding AI to Existing Website
-    else if (intent === 'add_ai_existing') {
-      reply =
-        "Yes, absolutely! We can integrate AI directly into your existing website through our **AI Integration & Automation** service (starting from **$300 USD**) or build an interactive **AI Chatbot** (starting from **$400 USD**).\n\nWe connect to your current codebase via clean APIs without requiring you to rebuild your website from scratch.";
-      suggestedAction = 'start_a_project';
+    // 5. Projects & Case Studies (Dynamic Website Reading)
+    else if (intent === 'portfolio_inquiry') {
+      if (context.caseStudies.length > 0) {
+        const studiesText = context.caseStudies
+          .map(cs => {
+            const tech = cs.techStack?.length ? `\n  - **Tech Stack**: ${cs.techStack.join(', ')}` : '';
+            const results = cs.results?.length ? `\n  - **Results**: ${cs.results.map(r => `${r.metric} ${r.label}`).join(' | ')}` : '';
+            return `#### **${cs.title}** (${cs.industry || 'Technology'})\n- **Overview**: ${cs.overview}${tech}${results}`;
+          })
+          .join('\n\n');
+        reply = `### Real-World Projects & Case Studies\n\nHere are recent production architectures engineered by SoloNomous Labs:\n\n${studiesText}\n\nYou can also explore live systems and personal architectural demos on Noman Nawaz's verified portfolio: [https://www.nouman-nawaz.dev/](https://www.nouman-nawaz.dev/).`;
+      } else {
+        reply =
+          "### Portfolio & Architecture Highlights\n\nYou can explore real-world production architectures on Noman Nawaz's verified portfolio: [https://www.nouman-nawaz.dev/](https://www.nouman-nawaz.dev/).\n\n#### Flagship Systems\n- **ZeoAtlas**: Autonomous AI workspace featuring real-time web search grounding, sub-5ms ML classification, and SSE streaming inference.\n- **Zashas**: High-performance modern e-commerce storefront engineered with Next.js, React 19, Node.js, and MongoDB.";
+      }
+      suggestedAction = 'view_service';
     }
 
-    // 7. Answering from Documents (RAG)
-    else if (intent === 'document_ai') {
-      reply =
-        "For an AI that answers questions accurately from your company's documents, PDFs, manuals, or internal databases, you need our **RAG & Knowledge-Based AI Systems** service (starting from **$750 USD**).\n\nRAG (Retrieval-Augmented Generation) converts your company documents into searchable vector embeddings. When a user asks a question, the AI retrieves the exact verified facts from your files first, preventing hallucinations and ensuring grounded, trustworthy answers with source citations.";
-      suggestedAction = 'start_a_project';
-    }
-
-    // 8. Website Slow / Speed Optimization
-    else if (intent === 'speed_slow_website') {
-      reply =
-        "Before rebuilding your website from scratch, I recommend our **Website Performance & Technical SEO** service (starting from **$150 USD**).\n\nWe conduct a thorough audit of your Core Web Vitals, compress heavy images, optimize script loading, and streamline database queries. In most cases, targeted technical optimizations can drastically improve loading speed and search engine rankings much more cost-effectively than a full rebuild.";
-      suggestedAction = 'start_a_project';
-    }
-
-    // 9. User accounts, orders, and registration
-    else if (intent === 'orders_and_accounts') {
-      reply =
-        "Because you need customer registration, logins, and order management, a static website won't be enough. I recommend our **E-Commerce Development** service (starting from **$500 USD**) or a **Full-Stack Web Application** (starting from **$500 USD**).\n\nThis includes secure customer accounts, database storage for order records, a shopping cart/checkout flow, and an administrative dashboard where your team can track and fulfill orders.";
-      suggestedAction = 'start_a_project';
-    }
-
-    // 10. Technology Stack
+    // 6. Technology Stack
     else if (intent === 'tech_stack_inquiry') {
       reply =
-        "SoloNomous Labs works with proven, production-grade technologies:\n• **Web & Frontend**: Next.js, React, TypeScript, Tailwind CSS, Framer Motion\n• **Backend & Databases**: Node.js, Express.js, MongoDB, PostgreSQL, REST APIs, JWT, Clerk\n• **AI & Machine Learning**: Python, Pandas, NumPy, Scikit-learn, Vector Databases, Embeddings, RAG pipelines, LLM APIs\n\nWe choose the technology stack based on what delivers the highest speed, security, and long-term maintainability for your project.";
+        "### SoloNomous Labs Technology Stack\n\nWe build resilient, scalable digital products using proven, production-grade technologies:\n\n- **Frontend & Web**: Next.js (App Router), React 19, TypeScript, Tailwind CSS, Framer Motion\n- **Backend & APIs**: Node.js, Express.js, REST APIs, GraphQL, Server-Sent Events (SSE), Webhooks\n- **Databases**: MongoDB, PostgreSQL, Redis, Cloudinary\n- **AI & Machine Learning**: Python, PyTorch, Scikit-learn, Google Gemini Flash, RAG pipelines, Vector Search\n- **Authentication & Security**: Clerk, JWT, Role-Based Access Control (RBAC), Rate Limiting\n\nWe choose tools specifically for high execution speed, maintainability, and clean architecture.";
       suggestedAction = 'view_service';
     }
 
-    // 11. Hiring & How to Start
+    // 7. Hiring & How to Start
     else if (intent === 'hire_inquiry') {
       reply =
-        "You can hire SoloNomous Labs easily through three straightforward paths:\n1. **Start a Project Form**: Submit your project requirements directly on our website at [/contact](/contact).\n2. **Direct WhatsApp / Email**: Message founder Noman Nawaz on WhatsApp at **+92 315 6251281** or email **nawaznoman7766@gmail.com** for a direct consultation.\n3. **Verified Fiverr Profile**: If you prefer standardized milestone protections, you can order directly through Noman's verified [Fiverr Profile](https://www.fiverr.com/nomannawaz67).\n\nWe typically review briefs and respond with a scoping proposal within 2 to 4 business hours.";
+        "### How to Engage SoloNomous Labs\n\nYou can start working with us through three straightforward options:\n\n1. **Submit a Project Brief**: Visit [/contact](/contact) or [/pricing](/pricing) to outline your requirements and target launch date.\n2. **Direct Consultation**: Message founder Noman Nawaz on WhatsApp at **+92 315 6251281** or email **nawaznoman7766@gmail.com**.\n3. **Verified Fiverr Profile**: Order with escrow protections via Noman's verified [Fiverr Profile](https://www.fiverr.com/nomannawaz67).\n\nWe typically review briefs and respond with a scoping proposal within 2 to 4 business hours.";
       suggestedAction = 'start_a_project';
     }
 
-    // 12. Recommendation Inquiry ("I don't know what service I need")
+    // 8. Recommendation Inquiry
     else if (intent === 'recommendation_inquiry') {
       reply =
-        "That's completely fine! You don't need to know the technical jargon—we're here to help guide you. To recommend the best solution, could you share:\n1. What is the main goal or problem you want to solve?\n2. Is this for an existing business or a brand-new idea?\n3. Do your users need to create accounts, buy products, or manage data?\n\nOnce you share a few details, I will recommend the most cost-effective service for your needs.";
+        "### Finding the Right Solution for You\n\nYou don't need to know the technical jargon—we're here to help guide you. To determine the most effective architecture, please tell us:\n\n1. **What is the primary goal or problem you are solving?**\n2. **Is this for a new business, an existing company, or a startup MVP?**\n3. **Do users need to create accounts, make payments, or access AI features?**\n\nOnce you share a few details, we will recommend the most cost-effective approach for your goals.";
       suggestedAction = 'schedule_call';
     }
 
-    // 13. Owner & Founder
+    // 9. Owner & Founder
     else if (intent === 'owner_inquiry') {
       reply =
-        "The founder and principal systems architect of SoloNomous Labs is **Noman Nawaz** (Nouman Nawaz). Noman is an experienced Full-Stack Software Engineer & ML Developer specializing in Next.js, the MERN stack, and AI engineering. You can view his verified portfolio and background at **[https://www.nouman-nawaz.dev/](https://www.nouman-nawaz.dev/)** or contact him directly on WhatsApp at **+92 315 6251281**.";
+        "### Founder & Lead Systems Architect\n\nSoloNomous Labs was founded by **Noman Nawaz** (Nouman Nawaz). Noman is an experienced Full-Stack Software Engineer & ML Developer specializing in Next.js, TypeScript, the MERN stack, and production AI engineering.\n\n- **Personal Portfolio**: [https://www.nouman-nawaz.dev/](https://www.nouman-nawaz.dev/)\n- **Verified Fiverr**: [https://www.fiverr.com/nomannawaz67](https://www.fiverr.com/nomannawaz67)\n- **Direct WhatsApp**: +92 315 6251281\n- **Email**: nawaznoman7766@gmail.com";
       suggestedAction = 'view_service';
     }
 
-    // 14. Projects / Case Studies
-    else if (intent === 'portfolio_inquiry') {
-      reply =
-        "You can explore real-world software architectures engineered by Noman Nawaz directly on his portfolio: **[https://www.nouman-nawaz.dev/](https://www.nouman-nawaz.dev/)**.\n\nFeatured flagship projects include:\n• **ZeoAtlas**: An autonomous AI workspace featuring real-time web search grounding, sub-5ms ML classification, and SSE streaming inference.\n• **Zashas**: A high-performance modern e-commerce storefront engineered with Next.js, React 19, Node.js, and MongoDB.\n\nWe've also engineered custom full-stack SaaS portals, RAG pipelines, and API architectures across various client engagements.";
-      suggestedAction = 'view_service';
-    }
-
-    // 15. Direct Contact Escalation
+    // 10. Direct Contact Escalation
     else if (intent === 'human_escalation') {
       reply =
-        "You can connect directly with Noman Nawaz via:\n• **WhatsApp / Phone**: +92 315 6251281\n• **Email**: nawaznoman7766@gmail.com\n• **Portfolio**: [https://www.nouman-nawaz.dev/](https://www.nouman-nawaz.dev/)\n• **Fiverr Profile**: [https://www.fiverr.com/nomannawaz67](https://www.fiverr.com/nomannawaz67)\n\nTypical response time is within 2 to 4 business hours!";
+        "### Direct Contact Channels\n\nYou can reach out directly to founder Noman Nawaz via:\n\n- **WhatsApp / Phone**: +92 315 6251281\n- **Email**: nawaznoman7766@gmail.com\n- **Website Inquiry**: [/contact](/contact)\n- **Founder Portfolio**: [https://www.nouman-nawaz.dev/](https://www.nouman-nawaz.dev/)\n\nTypical response time is within 2 to 4 business hours.";
       suggestedAction = 'schedule_call';
     }
 
-    // 16. Fallback with Retrieved Knowledge Grounding
+    // 11. Fallback with Retrieved Knowledge Grounding
     else {
-      if (retrievedDocs.length > 0) {
-        const topDoc = retrievedDocs[0];
-        reply = `${topDoc.chunkSummary}\n\nAt SoloNomous Labs, led by Noman Nawaz, we specialize in high-performance digital products, full-stack Next.js/React applications, and practical AI systems. Feel free to ask about any specific service or project requirement!`;
+      if (context.knowledgeDocs.length > 0) {
+        const topDoc = context.knowledgeDocs[0];
+        reply = `### ${topDoc.title}\n\n${topDoc.content || topDoc.chunkSummary}\n\nSoloNomous Labs, founded by Noman Nawaz, specializes in high-performance digital products, full-stack applications, and practical AI systems. Feel free to ask about our projects, tech stack, or specific service options!`;
       } else {
         reply =
-          "SoloNomous Labs is a professional software & AI product studio led by Noman Nawaz. We build high-performance business websites, full-stack web applications, SaaS MVPs, e-commerce stores, and AI systems. How can we help your business today?";
+          "### Welcome to SoloNomous Labs\n\nSoloNomous Labs is an AI, Software & Digital Product Studio founded by Noman Nawaz. We build high-performance web applications, scalable SaaS MVPs, e-commerce stores, and custom AI systems. How can we assist your business today?";
       }
     }
 
@@ -439,7 +527,7 @@ export class AiRagService {
     const { apiKey, model } = this.getGeminiConfig();
     if (apiKey && apiKey.length > 10 && intent !== 'academic_refusal') {
       try {
-        const systemPrompt = this.buildSystemPrompt(retrievedDocs);
+        const systemPrompt = this.buildSystemPrompt(context);
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const response = await fetch(geminiUrl, {
           method: 'POST',
@@ -489,31 +577,80 @@ export class AiRagService {
   }
 
   /**
-   * Helper: Build grounded system prompt with retrieved RAG knowledge
+   * Helper: Build grounded system prompt with live website data (Services, Case Studies, Testimonials, Knowledge Docs)
    */
-  public static buildSystemPrompt(retrievedDocs: IKnowledgeDocument[]): string {
-    const knowledgeSnippets =
-      retrievedDocs.length > 0
-        ? retrievedDocs
-            .map((d) => `[Source: ${d.title} (${d.category})]:\n${d.content || d.chunkSummary}`)
-            .join('\n\n')
-        : 'SoloNomous Labs is an AI, Software & Digital Product Engineering Studio founded by Noman Nawaz.';
+  public static buildSystemPrompt(context: WebsiteRagContext): string {
+    const { knowledgeDocs, caseStudies, services, testimonials } = context;
 
-    return `You are Solo, the AI solutions assistant for SoloNomous Labs, founded by Noman Nawaz.
-Founder Profile: Noman Nawaz is a Full-Stack Software Engineer & ML Developer specializing in Next.js, MERN, and AI systems.
-Personal Portfolio: https://www.nouman-nawaz.dev/
-Fiverr Profile: https://www.fiverr.com/nomannawaz67
-Phone/WhatsApp: +92 315 6251281
-Email: nawaznoman7766@gmail.com
+    // 1. Format Knowledge Docs
+    const knowledgeSnippets = knowledgeDocs.length > 0
+      ? knowledgeDocs.map((d) => `• [${d.title}]: ${d.content || d.chunkSummary}`).join('\n')
+      : '• SoloNomous Labs is an AI, Software & Digital Product Engineering Studio founded by Noman Nawaz.';
 
-RETRIEVED KNOWLEDGE BASE (Grounded Facts):
+    // 2. Format Live Services
+    const servicesList = services.length > 0
+      ? services.map((s) => {
+          const price = s.startingPrice ? ` (Starting from $${s.startingPrice} USD ${s.pricingInterval || ''})` : '';
+          const tech = s.techStack?.length ? ` | Tech Stack: ${s.techStack.join(', ')}` : '';
+          return `• **${s.title}**${price}: ${s.summary}${tech}`;
+        }).join('\n')
+      : '• Full-Stack Web Development, SaaS MVP Engineering, AI & RAG Chatbots, E-Commerce Platforms, Performance & SEO.';
+
+    // 3. Format Live Projects & Case Studies
+    const projectsList = caseStudies.length > 0
+      ? caseStudies.map((c) => {
+          const tech = c.techStack?.length ? ` | Tech Stack: ${c.techStack.join(', ')}` : '';
+          const deliverables = c.deliverables?.length ? ` | Deliverables: ${c.deliverables.join(', ')}` : '';
+          const metrics = c.results?.length ? ` | Results: ${c.results.map(r => `${r.metric} ${r.label}`).join(', ')}` : '';
+          return `• **${c.title}** (${c.industry || 'Technology'}): ${c.overview}${tech}${deliverables}${metrics}`;
+        }).join('\n')
+      : '• Flagship projects: ZeoAtlas (Autonomous AI workspace with sub-5ms ML classification), Zashas (Modern E-commerce storefront).';
+
+    // 4. Format Live Client Testimonials
+    const reviewsList = testimonials.length > 0
+      ? testimonials.map((t) => `• "${t.content}" — ${t.clientName}, ${t.role} at ${t.company} (${t.rating || 5}/5 stars)`).join('\n')
+      : '• Highly rated by technical founders and enterprise leaders for architectural rigor and clean code.';
+
+    return `You are Solo, the dedicated AI Solutions Architect for SoloNomous Labs, founded by Noman Nawaz.
+
+### FOUNDER PROFILE & CONTACT CHANNELS
+- Founder & Principal Architect: Noman Nawaz (Full-Stack Software Engineer & ML Developer specializing in Next.js, React, Node.js, and AI Systems)
+- Personal Portfolio: https://www.nouman-nawaz.dev/
+- Verified Fiverr: https://www.fiverr.com/nomannawaz67
+- WhatsApp / Direct: +92 315 6251281
+- Official Email: nawaznoman7766@gmail.com
+- Project Inquiry: /contact or /pricing
+
+### LIVE DATABASE CONTEXT (Queried directly from MongoDB)
+#### CURRENT SERVICES & PRICING:
+${servicesList}
+
+#### PUBLISHED PROJECTS & CASE STUDIES (Dynamic Tech Stack & Client Work):
+${projectsList}
+
+#### VERIFIED CLIENT TESTIMONIALS:
+${reviewsList}
+
+#### VERIFIED KNOWLEDGE BASE:
 ${knowledgeSnippets}
 
-GUIDELINES & BEHAVIOR:
-1. Always ground your responses in SoloNomous Labs services: SaaS MVP Development, Full-Stack Web Applications, AI Integration/RAG, E-Commerce, and Website Performance/SEO.
-2. Academic Policy: Politely refuse homework, college assignments, exams, plagiarism, or FYPs. SoloNomous Labs builds commercial software and business solutions.
-3. Be helpful, professional, and concise. Format responses in clean Markdown.
-4. When relevant, invite the user to start a project at /contact or reach out to Noman on WhatsApp (+92 315 6251281).`;
+### STRICT OPERATIONAL GUIDELINES:
+1. **Dynamic Website Awareness**:
+   - You are connected live to the website database. When users ask about projects, tech stack, client testimonials, or services, reference the real projects, tech stack, and testimonials from the LIVE DATABASE CONTEXT above.
+   - If a user uploads a new project or testimonial in the CMS, it appears in your context—read it and communicate it accurately.
+2. **Structured & Beautiful Responses**:
+   - Always structure your responses cleanly in Markdown.
+   - Use bold titles, headers (###, ####), bullet points (-), and clean spacing.
+   - NEVER output scattered, disjointed, or chaotic text. Keep responses polished, clear, and easy to scan.
+3. **Professional & Grounded Tone**:
+   - Be helpful, polite, confident, and professional.
+   - Do NOT exaggerate or boast. State facts, real technologies used, and verifiable metrics without hyperbole.
+4. **Strict Security & Privacy Safeguards**:
+   - NEVER reveal internal environment variables, database connection strings (MongoDB URIs), API keys, secret credentials, backend server ports, or private developer files.
+   - Do NOT provide internal admin URLs or reveal backend server architecture details that could compromise security.
+   - Only share the official public contact channels listed above.
+5. **Academic Integrity Policy**:
+   - Politely refuse requests for university homework, exams, plagiarism, or Final Year Projects (FYP) for academic submission. We build commercial software, startup products, and business applications.`;
   }
 
   /**
@@ -525,7 +662,7 @@ GUIDELINES & BEHAVIOR:
     onEvent: (event: { type: string; [key: string]: any }) => void,
     onComplete: (finalResult: ChatCompletionResult) => Promise<void>
   ): Promise<void> {
-    const retrievedDocs = await this.retrieveRelevantKnowledge(userMessage);
+    const context = await this.retrieveWebsiteContext(userMessage);
     const fullResult = await this.generateResponse(userMessage, history);
 
     // 1. Emit initial event with metadata & citations
@@ -542,7 +679,7 @@ GUIDELINES & BEHAVIOR:
     if (apiKey && apiKey.length > 10 && fullResult.intentDetected !== 'academic_refusal') {
       try {
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
-        const systemPrompt = this.buildSystemPrompt(retrievedDocs);
+        const systemPrompt = this.buildSystemPrompt(context);
 
         const geminiRes = await fetch(geminiUrl, {
           method: 'POST',
@@ -659,3 +796,4 @@ GUIDELINES & BEHAVIOR:
     return lead;
   }
 }
+

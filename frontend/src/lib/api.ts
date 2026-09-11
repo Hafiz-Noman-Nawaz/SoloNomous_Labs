@@ -85,8 +85,8 @@ export const api = {
     const query = category ? `?category=${category}` : '';
     return fetchAPI<{ success: boolean; data: FAQ[] }>(`/faqs${query}`);
   },
-  getTestimonials: async () => {
-    return fetchAPI<{ success: boolean; data: Testimonial[] }>('/testimonials');
+  getTestimonials: async (all?: boolean) => {
+    return fetchAPI<{ success: boolean; data: Testimonial[] }>(all ? '/testimonials?all=true' : '/testimonials');
   },
 
   // Site Settings

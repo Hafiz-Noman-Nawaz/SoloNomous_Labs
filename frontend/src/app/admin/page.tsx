@@ -31,7 +31,8 @@ import {
   ShieldAlert,
   X,
   Eye,
-  MessageSquare
+  MessageSquare,
+  Star
 } from 'lucide-react';
 import { SiteSettings } from '@/types';
 import { CloudinaryUploadWidget } from '@/components/ui/CloudinaryUploadWidget';
@@ -86,7 +87,7 @@ export default function AdminPortalPage() {
   const [setupConfirmPassword, setSetupConfirmPassword] = useState('');
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'blog' | 'services' | 'caseStudies' | 'knowledge' | 'settings' | 'team'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'blog' | 'services' | 'caseStudies' | 'testimonials' | 'knowledge' | 'settings' | 'team'>('overview');
   const [loading, setLoading] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSavedSuccess, setSettingsSavedSuccess] = useState(false);
@@ -96,6 +97,7 @@ export default function AdminPortalPage() {
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [caseStudies, setCaseStudies] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
   const [knowledgeDocs, setKnowledgeDocs] = useState<any[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
 
@@ -181,6 +183,21 @@ export default function AdminPortalPage() {
     chunkSummary: '',
     content: '',
     tags: 'engineering, saas, ai'
+  });
+
+  // ==================== TESTIMONIAL CRUD MODALS ====================
+  const [showTestimonialModal, setShowTestimonialModal] = useState(false);
+  const [testimonialFormMode, setTestimonialFormMode] = useState<'create' | 'edit'>('create');
+  const [testimonialForm, setTestimonialForm] = useState({
+    _id: '',
+    clientName: '',
+    role: '',
+    company: '',
+    avatar: '',
+    content: '',
+    rating: 5,
+    featured: true,
+    active: true
   });
 
   // ==================== LEAD DETAILS MODAL ====================
@@ -271,14 +288,15 @@ export default function AdminPortalPage() {
     };
 
     try {
-      const [leadsRes, blogRes, svcRes, csRes, knowRes, setRes, teamRes] = await Promise.all([
+      const [leadsRes, blogRes, svcRes, csRes, knowRes, setRes, teamRes, testRes] = await Promise.all([
         fetch('/api/v1/leads/admin/leads', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] })),
         fetch('/api/v1/blog/admin/all', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] })),
         fetch('/api/v1/services/admin/all', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] })),
         fetch('/api/v1/case-studies/admin/all', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] })),
         fetch('/api/v1/knowledge', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] })),
         fetch('/api/v1/settings').then(r => r.json()).catch(() => ({ data: null })),
-        fetch('/api/v1/admin-auth/team', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] }))
+        fetch('/api/v1/admin-auth/team', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] })),
+        fetch('/api/v1/testimonials?all=true').then(r => r.json()).catch(() => ({ data: [] }))
       ]);
 
       setLeads(leadsRes.data || []);
@@ -287,6 +305,7 @@ export default function AdminPortalPage() {
       setCaseStudies(csRes.data || []);
       setKnowledgeDocs(knowRes.data || []);
       setTeamMembers(teamRes.data || []);
+      setTestimonials(testRes.data || []);
 
       if (setRes.data) {
         setSettings(prev => ({
@@ -713,6 +732,93 @@ export default function AdminPortalPage() {
     }
   };
 
+  // ==================== TESTIMONIAL ACTIONS ====================
+  const handleOpenNewTestimonial = () => {
+    setTestimonialFormMode('create');
+    setTestimonialForm({
+      _id: '',
+      clientName: '',
+      role: '',
+      company: '',
+      avatar: '',
+      content: '',
+      rating: 5,
+      featured: true,
+      active: true
+    });
+    setShowTestimonialModal(true);
+  };
+
+  const handleOpenEditTestimonial = (t: any) => {
+    setTestimonialFormMode('edit');
+    setTestimonialForm({
+      _id: t._id,
+      clientName: t.clientName || '',
+      role: t.role || '',
+      company: t.company || '',
+      avatar: t.avatar || '',
+      content: t.content || '',
+      rating: t.rating ?? 5,
+      featured: t.featured ?? true,
+      active: t.active ?? true
+    });
+    setShowTestimonialModal(true);
+  };
+
+  const handleSaveTestimonial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const url = testimonialFormMode === 'create'
+        ? '/api/v1/admin/testimonials'
+        : `/api/v1/admin/testimonials/${testimonialForm._id}`;
+      const method = testimonialFormMode === 'create' ? 'POST' : 'PUT';
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify(testimonialForm)
+      }).then(r => r.json());
+
+      if (res.success) {
+        setShowTestimonialModal(false);
+        fetchData();
+      }
+    } catch (err) {
+      console.error('Save testimonial failed:', err);
+    }
+  };
+
+  const handleToggleTestimonialActive = async (t: any) => {
+    try {
+      await fetch(`/api/v1/admin/testimonials/${t._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({ active: !t.active })
+      });
+      setTestimonials(prev => prev.map(item => item._id === t._id ? { ...item, active: !item.active } : item));
+    } catch (err) {
+      console.error('Toggle testimonial active failed:', err);
+    }
+  };
+
+  const handleDeleteTestimonial = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to permanently delete the testimonial from "${name}"?`)) return;
+    try {
+      await fetch(`/api/v1/admin/testimonials/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${adminToken}` }
+      });
+      fetchData();
+    } catch (err) {
+      console.error('Delete testimonial failed:', err);
+    }
+  };
+
   // ==================== LEADS ACTIONS ====================
   const handleUpdateLeadStatus = async (id: string, newStatus: string) => {
     try {
@@ -869,6 +975,7 @@ export default function AdminPortalPage() {
     { id: 'blog', label: 'Blog & Social Repurpose', icon: FileText, badge: blogPosts.length, visible: isSuperadmin || perms?.canManageBlog },
     { id: 'services', label: 'Services', icon: Layers, badge: services.length, visible: isSuperadmin || perms?.canManageServices },
     { id: 'caseStudies', label: 'Case Studies', icon: Briefcase, badge: caseStudies.length, visible: isSuperadmin || perms?.canManageCaseStudies },
+    { id: 'testimonials', label: 'Testimonials', icon: Star, badge: testimonials.length, visible: isSuperadmin || perms?.canManageSettings },
     { id: 'knowledge', label: 'Knowledge Base', icon: BookOpen, badge: knowledgeDocs.length, visible: isSuperadmin || perms?.canManageKnowledge },
     { id: 'settings', label: 'Site & Brand Settings', icon: Settings, visible: isSuperadmin || perms?.canManageSettings },
     { id: 'team', label: 'Team & Permissions', icon: ShieldCheck, badge: teamMembers.length, visible: isSuperadmin }
@@ -1664,6 +1771,108 @@ export default function AdminPortalPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 6.5: CLIENT TESTIMONIALS & REVIEWS */}
+        {activeTab === 'testimonials' && (
+          <div className="space-y-6">
+            <div className="glass-card p-6 sm:p-8 rounded-3xl border border-white/10">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h3 className="text-lg font-bold font-display text-white flex items-center gap-2">
+                    <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                    Verified Client Testimonials ({testimonials.length})
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Manage client reviews, toggle visibility, and feature endorsements. The Ask Solo AI bot and public homepage dynamically read these testimonials.
+                  </p>
+                </div>
+                <button
+                  onClick={handleOpenNewTestimonial}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/30 transition-all cursor-pointer shrink-0"
+                >
+                  <Plus className="w-4 h-4" /> Add Testimonial
+                </button>
+              </div>
+
+              {testimonials.length === 0 ? (
+                <div className="text-center py-12 text-slate-400 text-xs">
+                  No testimonials found. Click &quot;Add Testimonial&quot; to publish your first client review!
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {testimonials.map((t) => (
+                    <div
+                      key={t._id}
+                      className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 hover:border-purple-500/30 transition-all flex flex-col justify-between group"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <div className="flex items-center gap-1 text-amber-400">
+                            {[...Array(t.rating || 5)].map((_, i) => (
+                              <Star key={i} className="w-3.5 h-3.5 fill-current" />
+                            ))}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleToggleTestimonialActive(t)}
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer ${
+                                t.active
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                  : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                              }`}
+                            >
+                              {t.active ? 'Active (Live)' : 'Hidden'}
+                            </button>
+                            {t.featured && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                Featured
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-slate-300 italic mb-4 leading-relaxed line-clamp-4">
+                          &ldquo;{t.content}&rdquo;
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-[11px] font-bold text-white">
+                            {t.clientName?.charAt(0) || 'C'}
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-white">{t.clientName}</div>
+                            <div className="text-[10px] text-slate-400">
+                              {t.role}, <span className="text-purple-300">{t.company}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => handleOpenEditTestimonial(t)}
+                            className="p-1.5 rounded-lg bg-white/5 hover:bg-purple-600 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                            title="Edit Review"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteTestimonial(t._id, t.clientName)}
+                            className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-slate-400 transition-colors cursor-pointer"
+                            title="Delete Review"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -2721,6 +2930,132 @@ export default function AdminPortalPage() {
                   >
                     {newMemberLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />}
                     Create Account
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* MODAL: CREATE / EDIT TESTIMONIAL */}
+        {/* ======================================================== */}
+        {showTestimonialModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+            <div className="bg-[#12111A] border border-white/10 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl my-8">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                  {testimonialFormMode === 'create' ? 'Add Client Testimonial' : 'Edit Testimonial'}
+                </h3>
+                <button
+                  onClick={() => setShowTestimonialModal(false)}
+                  className="text-slate-400 hover:text-white p-1 cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveTestimonial} className="space-y-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">Client Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Alex Morgan"
+                      value={testimonialForm.clientName}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, clientName: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">Role / Designation *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Chief Technology Officer"
+                      value={testimonialForm.role}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, role: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">Company / Organization *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. PulseCloud Global"
+                      value={testimonialForm.company}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, company: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">Star Rating (1 - 5)</label>
+                    <select
+                      value={testimonialForm.rating}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, rating: Number(e.target.value) })}
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs"
+                    >
+                      <option value={5} className="bg-[#12111A]">★★★★★ 5 Stars</option>
+                      <option value={4} className="bg-[#12111A]">★★★★☆ 4 Stars</option>
+                      <option value={3} className="bg-[#12111A]">★★★☆☆ 3 Stars</option>
+                      <option value={2} className="bg-[#12111A]">★★☆☆☆ 2 Stars</option>
+                      <option value={1} className="bg-[#12111A]">★☆☆☆☆ 1 Star</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Review & Feedback Content *</label>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="Enter verified client endorsement and technical feedback..."
+                    value={testimonialForm.content}
+                    onChange={(e) => setTestimonialForm({ ...testimonialForm, content: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs resize-none"
+                  />
+                </div>
+
+                <div className="flex items-center gap-6 pt-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={testimonialForm.active}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, active: e.target.checked })}
+                      className="w-4 h-4 rounded-sm bg-white/5 border-white/10 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span className="text-slate-300 font-semibold">Active / Published</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={testimonialForm.featured}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, featured: e.target.checked })}
+                      className="w-4 h-4 rounded-sm bg-white/5 border-white/10 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span className="text-slate-300 font-semibold">Featured on Homepage</span>
+                  </label>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setShowTestimonialModal(false)}
+                    className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-semibold text-xs cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs shadow-lg shadow-purple-600/30 cursor-pointer"
+                  >
+                    {testimonialFormMode === 'create' ? 'Publish Testimonial' : 'Save Changes'}
                   </button>
                 </div>
               </form>

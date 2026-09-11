@@ -56,7 +56,8 @@ export class ContentController {
    */
   public static async getTestimonials(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const testimonials = await Testimonial.find({ active: true }).sort({ rating: -1, createdAt: -1 });
+      const filter = req.query.all === 'true' ? {} : { active: true };
+      const testimonials = await Testimonial.find(filter).sort({ rating: -1, createdAt: -1 });
       res.json({ success: true, data: testimonials });
     } catch (error) {
       next(error);

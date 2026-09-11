@@ -82,9 +82,15 @@ export default function ServicesPage() {
     });
   };
 
+  // Only display categories that actually have at least 1 service
+  const populatedCategories = categories.filter((c) => {
+    const count = getServicesForCategory(c.name).length;
+    return count > 0 || (c.serviceCount !== undefined && c.serviceCount > 0);
+  });
+
   const activeCategories = selectedCategory === 'all'
-    ? categories
-    : categories.filter(c => c.slug === selectedCategory);
+    ? populatedCategories
+    : populatedCategories.filter(c => c.slug === selectedCategory);
 
   return (
     <div className="relative overflow-hidden py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-screen">
@@ -118,7 +124,7 @@ export default function ServicesPage() {
         >
           All Categories ({services.length})
         </button>
-        {categories.map((cat) => {
+        {populatedCategories.map((cat) => {
           const count = getServicesForCategory(cat.name).length || cat.serviceCount || 0;
           const isSelected = selectedCategory === cat.slug;
           const Icon = getCategoryIcon(cat.slug);

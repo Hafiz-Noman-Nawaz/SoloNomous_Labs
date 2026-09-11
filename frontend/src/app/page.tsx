@@ -354,56 +354,73 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {caseStudies.map((study) => (
-              <TiltCard
-                key={study.slug}
-                data-cursor="project"
-                className="glass-card rounded-2xl overflow-hidden flex flex-col group border border-white/8"
+          {caseStudies.length === 0 ? (
+            <div className="glass-card p-10 rounded-2xl text-center border border-white/5">
+              <p className="text-slate-300 text-sm mb-2 font-medium">Enterprise Case Studies in Production</p>
+              <p className="text-slate-400 text-xs mb-4 max-w-md mx-auto">
+                Explore real-world software architectures and live systems directly on Noman Nawaz&apos;s verified portfolio.
+              </p>
+              <a
+                href="https://www.nouman-nawaz.dev/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 text-xs font-semibold hover:text-white transition-all"
               >
-                <div className="relative h-48 w-full overflow-hidden bg-purple-950/20">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={study.heroImage?.url}
-                    alt={study.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
-                  />
-                  <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-md text-[11px] font-semibold text-purple-300 border border-white/10">
-                    {study.industry}
+                View Architectures at nouman-nawaz.dev <ArrowRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {caseStudies.map((study) => (
+                <TiltCard
+                  key={study.slug}
+                  data-cursor="project"
+                  className="glass-card rounded-2xl overflow-hidden flex flex-col group border border-white/8"
+                >
+                  <div className="relative h-48 w-full overflow-hidden bg-purple-950/20">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={study.heroImage?.url}
+                      alt={study.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
+                    />
+                    <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-md text-[11px] font-semibold text-purple-300 border border-white/10">
+                      {study.industry}
+                    </div>
                   </div>
-                </div>
 
-                <div className="p-6 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold font-display text-white group-hover:text-purple-300 transition-colors mb-2 leading-snug">
-                      {study.title}
-                    </h3>
-                    <p className="text-xs text-slate-400 line-clamp-3 mb-4 leading-relaxed">
-                      {study.overview}
-                    </p>
-                  </div>
-
-                  <div>
-                    <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 mb-4 text-center">
-                      {study.results?.slice(0, 3).map((r, ri) => (
-                        <div key={ri}>
-                          <div className="text-sm font-bold text-purple-300">{r.metric}</div>
-                          <div className="text-[9px] text-slate-400 truncate">{r.label}</div>
-                        </div>
-                      ))}
+                  <div className="p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-lg font-bold font-display text-white group-hover:text-purple-300 transition-colors mb-2 leading-snug">
+                        {study.title}
+                      </h3>
+                      <p className="text-xs text-slate-400 line-clamp-3 mb-4 leading-relaxed">
+                        {study.overview}
+                      </p>
                     </div>
 
-                    <Link
-                      href={`/work/${study.slug}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-purple-400 transition-colors"
-                    >
-                      Read Full Case Study <ArrowRight className="w-3 h-3" />
-                    </Link>
+                    <div>
+                      <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 mb-4 text-center">
+                        {study.results?.slice(0, 3).map((r, ri) => (
+                          <div key={ri}>
+                            <div className="text-sm font-bold text-purple-300">{r.metric}</div>
+                            <div className="text-[9px] text-slate-400 truncate">{r.label}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <Link
+                        href={`/work/${study.slug}`}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-white group-hover:text-purple-400 transition-colors"
+                      >
+                        Read Full Case Study <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </TiltCard>
-            ))}
-          </div>
+                </TiltCard>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -480,49 +497,55 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {blogPosts.slice(0, 3).map((post) => (
-              <article
-                key={post.slug}
-                className="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group"
-              >
-                <div>
-                  <div className="relative h-44 w-full overflow-hidden bg-purple-950/20">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={post.featuredImage?.url}
-                      alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
-                    />
-                    <div className="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-semibold text-purple-300">
-                      {post.category?.name || 'Architecture'}
+          {blogPosts.length === 0 ? (
+            <div className="glass-card p-8 rounded-2xl text-center border border-white/5">
+              <p className="text-slate-400 text-xs">Architectural research and engineering dispatches are currently in editorial publication.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {blogPosts.slice(0, 3).map((post) => (
+                <article
+                  key={post.slug}
+                  className="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="relative h-44 w-full overflow-hidden bg-purple-950/20">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={post.featuredImage?.url}
+                        alt={post.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+                      />
+                      <div className="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-semibold text-purple-300">
+                        {post.category?.name || 'Architecture'}
+                      </div>
+                    </div>
+
+                    <div className="p-5">
+                      <div className="text-[11px] text-slate-400 mb-2">
+                        {post.readingTimeMinutes} min read
+                      </div>
+                      <h3 className="text-base font-bold font-display text-white group-hover:text-purple-300 transition-colors mb-2 leading-snug">
+                        <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                      </h3>
+                      <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                        {post.excerpt}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="p-5">
-                    <div className="text-[11px] text-slate-400 mb-2">
-                      {post.readingTimeMinutes} min read
-                    </div>
-                    <h3 className="text-base font-bold font-display text-white group-hover:text-purple-300 transition-colors mb-2 leading-snug">
-                      <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                    </h3>
-                    <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
-                      {post.excerpt}
-                    </p>
+                  <div className="p-5 pt-0">
+                    <Link
+                      href={`/blog/${post.slug}`}
+                      className="text-xs font-semibold text-purple-400 hover:text-purple-300 inline-flex items-center gap-1 transition-colors"
+                    >
+                      Read article <ArrowRight className="w-3 h-3" />
+                    </Link>
                   </div>
-                </div>
-
-                <div className="p-5 pt-0">
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="text-xs font-semibold text-purple-400 hover:text-purple-300 inline-flex items-center gap-1 transition-colors"
-                  >
-                    Read article <ArrowRight className="w-3 h-3" />
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -547,34 +570,50 @@ export default function HomePage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((t, idx) => (
-              <div key={idx} className="glass-card p-6 rounded-2xl flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-1 text-amber-400 mb-3">
-                    {[...Array(t.rating || 5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic mb-6">
-                    &ldquo;{t.content}&rdquo;
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-3 pt-4 border-t border-white/5">
-                  <div className="w-9 h-9 rounded-full bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-xs font-bold text-white">
-                    {t.clientName.charAt(0)}
-                  </div>
+          {testimonials.length === 0 ? (
+            <div className="glass-card p-10 rounded-2xl text-center border border-white/5">
+              <p className="text-slate-300 text-sm font-medium mb-2">Verified Client Endorsements</p>
+              <p className="text-slate-400 text-xs mb-4 max-w-md mx-auto">
+                We take immense pride in delivering high-throughput, maintainable software with 100% client satisfaction.
+              </p>
+              <button
+                onClick={() => setReviewModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 text-xs font-semibold hover:text-white transition-all cursor-pointer"
+              >
+                <Star className="w-3.5 h-3.5 fill-purple-400 text-purple-400" />
+                Leave a Verified Client Review
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {testimonials.map((t, idx) => (
+                <div key={idx} className="glass-card p-6 rounded-2xl flex flex-col justify-between">
                   <div>
-                    <div className="text-xs font-bold text-white">{t.clientName}</div>
-                    <div className="text-[10px] text-slate-400">
-                      {t.role}, <span className="text-purple-300">{t.company}</span>
+                    <div className="flex items-center gap-1 text-amber-400 mb-3">
+                      {[...Array(t.rating || 5)].map((_, i) => (
+                        <Star key={i} className="w-3.5 h-3.5 fill-current" />
+                      ))}
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic mb-6">
+                      &ldquo;{t.content}&rdquo;
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-4 border-t border-white/5">
+                    <div className="w-9 h-9 rounded-full bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-xs font-bold text-white">
+                      {t.clientName.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white">{t.clientName}</div>
+                      <div className="text-[10px] text-slate-400">
+                        {t.role}, <span className="text-purple-300">{t.company}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
