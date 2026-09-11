@@ -31,6 +31,27 @@ export interface ServiceCategory {
   serviceCount?: number;
 }
 
+export interface PricingPackage {
+  _id: string;
+  name: string;
+  slug: string;
+  badge?: string;
+  price: string;
+  originalPrice?: string;
+  discountPercentage?: number;
+  discountText?: string;
+  period: string;
+  description: string;
+  deliverables: string[];
+  popular: boolean;
+  ctaText: string;
+  ctaLink: string;
+  displayOrder: number;
+  active: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface CaseStudy {
   _id: string;
   title: string;

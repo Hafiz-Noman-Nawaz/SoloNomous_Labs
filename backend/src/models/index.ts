@@ -8,3 +8,4 @@ export * from './FeedbackAndFaq';
 export * from './KnowledgeAndChat';
 export * from './SiteSettingsAndMedia';
 export * from './AdminUser';
+export * from './Package';

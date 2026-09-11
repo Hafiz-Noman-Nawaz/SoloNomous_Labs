@@ -6,6 +6,7 @@ import caseStudyRoutes from './caseStudyRoutes';
 import chatRoutes from './chatRoutes';
 import contentRoutes from './contentRoutes';
 import adminAuthRoutes from './adminAuthRoutes';
+import packageRoutes from './packageRoutes';
 
 const router = Router();
 
@@ -24,6 +25,7 @@ router.use('/admin/auth', adminAuthRoutes);
 router.use('/leads', leadRoutes);
 router.use('/blog', blogRoutes);
 router.use('/services', serviceRoutes);
+router.use('/packages', packageRoutes);
 router.use('/case-studies', caseStudyRoutes);
 router.use('/chat', chatRoutes);
 router.use('/', contentRoutes);

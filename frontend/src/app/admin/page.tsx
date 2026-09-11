@@ -35,7 +35,10 @@ import {
   Star,
   Calendar,
   Code2,
-  TrendingUp
+  TrendingUp,
+  DollarSign,
+  Tag,
+  Percent
 } from 'lucide-react';
 import { SiteSettings } from '@/types';
 import { CloudinaryUploadWidget } from '@/components/ui/CloudinaryUploadWidget';
@@ -91,7 +94,7 @@ export default function AdminPortalPage() {
   const [setupConfirmPassword, setSetupConfirmPassword] = useState('');
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'blog' | 'services' | 'caseStudies' | 'testimonials' | 'knowledge' | 'settings' | 'team'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'blog' | 'services' | 'pricing' | 'caseStudies' | 'testimonials' | 'knowledge' | 'settings' | 'team'>('overview');
   const [loading, setLoading] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSavedSuccess, setSettingsSavedSuccess] = useState(false);
@@ -100,6 +103,7 @@ export default function AdminPortalPage() {
   const [leads, setLeads] = useState<any[]>([]);
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
+  const [packages, setPackages] = useState<any[]>([]);
   const [caseStudies, setCaseStudies] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [knowledgeDocs, setKnowledgeDocs] = useState<any[]>([]);
@@ -207,6 +211,28 @@ export default function AdminPortalPage() {
     active: true
   });
 
+  // ==================== PACKAGES / PRICING MODAL ====================
+  const [showPackageModal, setShowPackageModal] = useState(false);
+  const [packageFormMode, setPackageFormMode] = useState<'create' | 'edit'>('create');
+  const [packageForm, setPackageForm] = useState({
+    _id: '',
+    name: '',
+    slug: '',
+    badge: '',
+    price: '$4,500',
+    originalPrice: '',
+    discountPercentage: 0,
+    discountText: '',
+    period: 'Starting fee / 2-3 Weeks',
+    description: '',
+    deliverables: '',
+    popular: false,
+    ctaText: 'Kickoff Sprint',
+    ctaLink: '/contact',
+    displayOrder: 0,
+    active: true
+  });
+
   // ==================== LEAD DETAILS MODAL ====================
   const [selectedLead, setSelectedLead] = useState<any | null>(null);
 
@@ -295,10 +321,11 @@ export default function AdminPortalPage() {
     };
 
     try {
-      const [leadsRes, blogRes, svcRes, csRes, knowRes, setRes, teamRes, testRes] = await Promise.all([
+      const [leadsRes, blogRes, svcRes, pkgRes, csRes, knowRes, setRes, teamRes, testRes] = await Promise.all([
         fetch('/api/v1/leads/admin/leads', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] })),
         fetch('/api/v1/blog/admin/all', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] })),
         fetch('/api/v1/services/admin/all', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] })),
+        fetch('/api/v1/packages/admin/all', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] })),
         fetch('/api/v1/case-studies/admin/all', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] })),
         fetch('/api/v1/knowledge', { headers: authHeaders }).then(r => r.json()).catch(() => ({ data: [] })),
         fetch('/api/v1/settings').then(r => r.json()).catch(() => ({ data: null })),
@@ -309,6 +336,7 @@ export default function AdminPortalPage() {
       setLeads(leadsRes.data || []);
       setBlogPosts(blogRes.data || []);
       setServices(svcRes.data || []);
+      setPackages(pkgRes.data || []);
       setCaseStudies(csRes.data || []);
       setKnowledgeDocs(knowRes.data || []);
       setTeamMembers(teamRes.data || []);
@@ -577,6 +605,124 @@ export default function AdminPortalPage() {
       fetchData();
     } catch (err) {
       console.error('Delete service failed:', err);
+    }
+  };
+
+  // ==================== PACKAGES & PRICING ACTIONS ====================
+  const handleOpenNewPackage = () => {
+    setPackageFormMode('create');
+    setPackageForm({
+      _id: '',
+      name: '',
+      slug: '',
+      badge: 'Rapid Validation',
+      price: '$4,500',
+      originalPrice: '$5,000',
+      discountPercentage: 10,
+      discountText: 'Save 10%',
+      period: 'Starting fee / 2-3 Weeks',
+      description: 'Ideal for validating an architectural hypothesis, integrating custom RAG, or building a standalone microservice.',
+      deliverables: 'Complete system architecture blueprint\nWorking production-ready service / feature\nAutomated unit & integration test suite\nFull GitHub source transfer & documentation\n30-day post-launch warranty',
+      popular: false,
+      ctaText: 'Kickoff Sprint',
+      ctaLink: '/contact',
+      displayOrder: (packages.length + 1) * 10,
+      active: true
+    });
+    setShowPackageModal(true);
+  };
+
+  const handleOpenEditPackage = (pkg: any) => {
+    setPackageFormMode('edit');
+    setPackageForm({
+      _id: pkg._id,
+      name: pkg.name || '',
+      slug: pkg.slug || '',
+      badge: pkg.badge || '',
+      price: pkg.price || '',
+      originalPrice: pkg.originalPrice || '',
+      discountPercentage: pkg.discountPercentage || 0,
+      discountText: pkg.discountText || '',
+      period: pkg.period || '',
+      description: pkg.description || '',
+      deliverables: Array.isArray(pkg.deliverables) ? pkg.deliverables.join('\n') : (pkg.deliverables || ''),
+      popular: Boolean(pkg.popular),
+      ctaText: pkg.ctaText || 'Kickoff Sprint',
+      ctaLink: pkg.ctaLink || '/contact',
+      displayOrder: pkg.displayOrder ?? 0,
+      active: pkg.active !== undefined ? Boolean(pkg.active) : true
+    });
+    setShowPackageModal(true);
+  };
+
+  const handleSavePackage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        name: packageForm.name,
+        slug: packageForm.slug || packageForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        badge: packageForm.badge,
+        price: packageForm.price,
+        originalPrice: packageForm.originalPrice,
+        discountPercentage: Number(packageForm.discountPercentage) || 0,
+        discountText: packageForm.discountText,
+        period: packageForm.period,
+        description: packageForm.description,
+        deliverables: packageForm.deliverables.split(/\r?\n/).map(s => s.trim()).filter(Boolean),
+        popular: packageForm.popular,
+        ctaText: packageForm.ctaText,
+        ctaLink: packageForm.ctaLink,
+        displayOrder: Number(packageForm.displayOrder) || 0,
+        active: packageForm.active
+      };
+
+      const url = packageFormMode === 'create' ? '/api/v1/packages/admin' : `/api/v1/packages/admin/${packageForm._id}`;
+      const method = packageFormMode === 'create' ? 'POST' : 'PUT';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify(payload)
+      }).then(r => r.json());
+
+      if (res.success) {
+        setShowPackageModal(false);
+        fetchData();
+      }
+    } catch (err) {
+      console.error('Save package failed:', err);
+    }
+  };
+
+  const handleTogglePackageActive = async (pkg: any) => {
+    try {
+      await fetch(`/api/v1/packages/admin/${pkg._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({ active: !pkg.active })
+      });
+      setPackages(prev => prev.map(p => p._id === pkg._id ? { ...p, active: !p.active } : p));
+    } catch (err) {
+      console.error('Failed toggling package active status:', err);
+    }
+  };
+
+  const handleDeletePackage = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to permanently delete package "${name}"?`)) return;
+    try {
+      await fetch(`/api/v1/packages/admin/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${adminToken}` }
+      });
+      fetchData();
+    } catch (err) {
+      console.error('Delete package failed:', err);
     }
   };
 
@@ -1016,6 +1162,7 @@ export default function AdminPortalPage() {
     { id: 'leads', label: 'Leads & CRM', icon: Users, badge: leads.filter(l => l.status === 'new').length, visible: isSuperadmin || perms?.canManageLeads },
     { id: 'blog', label: 'Blog & Social Repurpose', icon: FileText, badge: blogPosts.length, visible: isSuperadmin || perms?.canManageBlog },
     { id: 'services', label: 'Services', icon: Layers, badge: services.length, visible: isSuperadmin || perms?.canManageServices },
+    { id: 'pricing', label: 'Pricing & Packages', icon: DollarSign, badge: packages.length, visible: isSuperadmin || perms?.canManageServices },
     { id: 'caseStudies', label: 'Case Studies', icon: Briefcase, badge: caseStudies.length, visible: isSuperadmin || perms?.canManageCaseStudies },
     { id: 'testimonials', label: 'Testimonials', icon: Star, badge: testimonials.length, visible: isSuperadmin || perms?.canManageSettings },
     { id: 'knowledge', label: 'Knowledge Base', icon: BookOpen, badge: knowledgeDocs.length, visible: isSuperadmin || perms?.canManageKnowledge },
@@ -1713,6 +1860,160 @@ export default function AdminPortalPage() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* TAB 4.5: PRICING & PACKAGES (FULL CRUD & DISCOUNTS) */}
+        {activeTab === 'pricing' && (
+          <div className="glass-card p-6 sm:p-8 rounded-3xl border border-white/10 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-bold font-display text-white flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-emerald-400" />
+                  Pricing Packages & Discount Manager ({packages.length})
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Configure turnkey product sprints, retainer scopes, discount badges, and deliverables for the public pricing page.
+                </p>
+              </div>
+              <button
+                onClick={handleOpenNewPackage}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/30 cursor-pointer transition-all shrink-0"
+              >
+                <Plus className="w-4 h-4" /> Add Pricing Package
+              </button>
+            </div>
+
+            {packages.length === 0 ? (
+              <div className="text-center py-16 border border-dashed border-white/10 rounded-2xl p-6">
+                <DollarSign className="w-10 h-10 text-slate-500 mx-auto mb-3" />
+                <h4 className="text-sm font-semibold text-white mb-1">No Pricing Packages Configured</h4>
+                <p className="text-xs text-slate-400 mb-4 max-w-sm mx-auto">
+                  Create your first product sprint or retainer tier to display on the public pricing page.
+                </p>
+                <button
+                  onClick={handleOpenNewPackage}
+                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold"
+                >
+                  Create Initial Package
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {packages.map((pkg) => {
+                  const hasDiscount = (pkg.discountPercentage && pkg.discountPercentage > 0) || pkg.discountText || (pkg.originalPrice && pkg.originalPrice !== pkg.price);
+                  return (
+                    <div
+                      key={pkg._id}
+                      className={`p-6 rounded-2xl bg-white/[0.02] border flex flex-col justify-between transition-all ${
+                        pkg.popular
+                          ? 'border-purple-500/50 shadow-xl shadow-purple-950/30 ring-1 ring-purple-500/30'
+                          : 'border-white/10 hover:border-purple-500/30'
+                      }`}
+                    >
+                      <div>
+                        {/* Badges & Status */}
+                        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {pkg.popular && (
+                              <span className="px-2 py-0.5 rounded-full bg-purple-600 text-white text-[10px] font-bold uppercase tracking-wider">
+                                {pkg.badge || 'Popular'}
+                              </span>
+                            )}
+                            {!pkg.popular && pkg.badge && (
+                              <span className="px-2 py-0.5 rounded-full bg-white/10 text-purple-300 text-[10px] font-semibold uppercase tracking-wider border border-white/10">
+                                {pkg.badge}
+                              </span>
+                            )}
+                            {hasDiscount && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-[10px] font-bold uppercase tracking-wider border border-emerald-500/30">
+                                <Tag className="w-2.5 h-2.5" />
+                                {pkg.discountText || `${pkg.discountPercentage}% OFF`}
+                              </span>
+                            )}
+                          </div>
+
+                          <span className={`inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full ${pkg.active ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${pkg.active ? 'bg-emerald-400' : 'bg-red-400'}`} />
+                            {pkg.active ? 'LIVE' : 'DRAFT'}
+                          </span>
+                        </div>
+
+                        {/* Title & Pricing */}
+                        <h4 className="text-base font-bold text-white mb-2">{pkg.name}</h4>
+
+                        <div className="mb-3 p-3 rounded-xl bg-black/30 border border-white/5">
+                          {pkg.originalPrice && (
+                            <div className="text-xs line-through text-slate-400 font-mono mb-0.5">
+                              {pkg.originalPrice}
+                            </div>
+                          )}
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-extrabold text-white font-display">{pkg.price}</span>
+                            <span className="text-xs text-slate-400">{pkg.period}</span>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-slate-300 leading-relaxed mb-4">{pkg.description}</p>
+
+                        {/* Deliverables Preview */}
+                        {pkg.deliverables && pkg.deliverables.length > 0 && (
+                          <div className="space-y-1.5 pt-3 border-t border-white/5">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                              Included Deliverables ({pkg.deliverables.length}):
+                            </div>
+                            <ul className="space-y-1 text-xs text-slate-300">
+                              {pkg.deliverables.slice(0, 4).map((d: string, di: number) => (
+                                <li key={di} className="flex items-start gap-1.5">
+                                  <span className="text-purple-400 font-bold">•</span>
+                                  <span className="truncate">{d}</span>
+                                </li>
+                              ))}
+                              {pkg.deliverables.length > 4 && (
+                                <li className="text-[10px] text-purple-400 font-semibold pl-2.5">
+                                  +{pkg.deliverables.length - 4} more deliverables
+                                </li>
+                              )}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action Footer */}
+                      <div className="flex items-center justify-between pt-4 border-t border-white/5 mt-4">
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePackageActive(pkg)}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer ${
+                            pkg.active
+                              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20'
+                              : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          {pkg.active ? 'Active on Site' : 'Hidden / Inactive'}
+                        </button>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => handleOpenEditPackage(pkg)}
+                            className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-purple-600 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" /> Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeletePackage(pkg._id, pkg.name)}
+                            className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-slate-400 transition-colors cursor-pointer"
+                            title="Delete Package"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
@@ -2589,6 +2890,253 @@ export default function AdminPortalPage() {
                     className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold"
                   >
                     {serviceFormMode === 'create' ? 'Create Service' : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* MODAL 2.5: CREATE / EDIT PRICING PACKAGE & DISCOUNTS */}
+        {/* ======================================================== */}
+        {showPackageModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+            <div className="bg-[#12111A] border border-white/10 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-4 shadow-2xl custom-scrollbar my-6">
+              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-emerald-400" />
+                  {packageFormMode === 'create' ? 'Create Pricing Package' : 'Edit Pricing Package & Discounts'}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowPackageModal(false)}
+                  className="text-slate-400 hover:text-white text-xs cursor-pointer p-1"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleSavePackage} className="space-y-4 text-xs">
+                {/* Row 1: Name & Slug */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">Package Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={packageForm.name}
+                      onChange={(e) => setPackageForm({ ...packageForm, name: e.target.value })}
+                      placeholder="E.g., Full-Stack MVP Architecture"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">URL Identifier / Slug</label>
+                    <input
+                      type="text"
+                      value={packageForm.slug}
+                      onChange={(e) => setPackageForm({ ...packageForm, slug: e.target.value })}
+                      placeholder="Auto-generated if left empty"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: Price, Original Price, Discount */}
+                <div className="p-3.5 rounded-2xl bg-black/30 border border-white/5 space-y-3">
+                  <div className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5" /> Commercial Pricing & Discounts
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div>
+                      <label className="block text-slate-300 font-semibold mb-1">Current Price *</label>
+                      <input
+                        type="text"
+                        required
+                        value={packageForm.price}
+                        onChange={(e) => setPackageForm({ ...packageForm, price: e.target.value })}
+                        placeholder="E.g., $4,500 or Custom"
+                        className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-300 font-semibold mb-1">Original Price (Strike)</label>
+                      <input
+                        type="text"
+                        value={packageForm.originalPrice}
+                        onChange={(e) => setPackageForm({ ...packageForm, originalPrice: e.target.value })}
+                        placeholder="E.g., $5,500"
+                        className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-300 font-semibold mb-1">Discount (%)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={packageForm.discountPercentage}
+                        onChange={(e) => setPackageForm({ ...packageForm, discountPercentage: Number(e.target.value) })}
+                        placeholder="E.g., 20"
+                        className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-300 font-semibold mb-1">Discount Tag Label</label>
+                      <input
+                        type="text"
+                        value={packageForm.discountText}
+                        onChange={(e) => setPackageForm({ ...packageForm, discountText: e.target.value })}
+                        placeholder="E.g., Save $1,000 or 20% OFF"
+                        className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 3: Period, Badge, CTA */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">Billing / Delivery Period *</label>
+                    <input
+                      type="text"
+                      required
+                      value={packageForm.period}
+                      onChange={(e) => setPackageForm({ ...packageForm, period: e.target.value })}
+                      placeholder="E.g., Starting fee / 2-3 Weeks"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">Badge Tag</label>
+                    <input
+                      type="text"
+                      value={packageForm.badge}
+                      onChange={(e) => setPackageForm({ ...packageForm, badge: e.target.value })}
+                      placeholder="E.g., Most Popular or Rapid Validation"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">CTA Button Text</label>
+                    <input
+                      type="text"
+                      value={packageForm.ctaText}
+                      onChange={(e) => setPackageForm({ ...packageForm, ctaText: e.target.value })}
+                      placeholder="E.g., Kickoff Sprint"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 4: Description */}
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Package Summary & Description *</label>
+                  <textarea
+                    required
+                    rows={2}
+                    value={packageForm.description}
+                    onChange={(e) => setPackageForm({ ...packageForm, description: e.target.value })}
+                    placeholder="Short architectural explanation of what this package solves for the client..."
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white resize-none"
+                  />
+                </div>
+
+                {/* Row 5: Deliverables */}
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">
+                    Deliverables Included (One per line)
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={packageForm.deliverables}
+                    onChange={(e) => setPackageForm({ ...packageForm, deliverables: e.target.value })}
+                    placeholder="Complete system architecture blueprint&#10;Working production-ready service&#10;Automated test suite&#10;Full GitHub source transfer"
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-xs leading-relaxed"
+                  />
+                </div>
+
+                {/* Row 6: Toggles & Display Order */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                  <label className="flex items-center gap-2 text-slate-300 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={packageForm.popular}
+                      onChange={(e) => setPackageForm({ ...packageForm, popular: e.target.checked })}
+                      className="rounded border-white/20 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span className="font-semibold text-xs">Featured / Popular Card</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 text-slate-300 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={packageForm.active}
+                      onChange={(e) => setPackageForm({ ...packageForm, active: e.target.checked })}
+                      className="rounded border-white/20 text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <span className="font-semibold text-xs">Publish Live on Site</span>
+                  </label>
+
+                  <div className="flex items-center gap-2">
+                    <label className="text-slate-400 text-xs shrink-0">Display Order:</label>
+                    <input
+                      type="number"
+                      value={packageForm.displayOrder}
+                      onChange={(e) => setPackageForm({ ...packageForm, displayOrder: Number(e.target.value) })}
+                      className="w-20 px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-white text-xs font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Live Card Preview Box */}
+                <div className="p-4 rounded-2xl bg-gradient-to-b from-purple-950/20 to-black/40 border border-purple-500/20">
+                  <div className="text-[10px] font-bold text-purple-300 uppercase tracking-wider mb-2">
+                    Live Public Card Preview
+                  </div>
+                  <div className="p-4 rounded-xl bg-black/40 border border-white/10">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-bold text-white">{packageForm.name || 'Package Title'}</span>
+                      {packageForm.badge && (
+                        <span className="px-2 py-0.5 rounded-full bg-purple-600 text-white text-[10px] font-bold uppercase">
+                          {packageForm.badge}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-baseline gap-2 mb-1">
+                      {packageForm.originalPrice && (
+                        <span className="text-xs line-through text-slate-500 font-mono">
+                          {packageForm.originalPrice}
+                        </span>
+                      )}
+                      {(packageForm.discountText || packageForm.discountPercentage > 0) && (
+                        <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
+                          {packageForm.discountText || `${packageForm.discountPercentage}% OFF`}
+                        </span>
+                      )}
+                      <span className="text-xl font-bold text-white font-display">{packageForm.price || '$0'}</span>
+                      <span className="text-[11px] text-slate-400">{packageForm.period}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 line-clamp-2">{packageForm.description || 'Description...'}</p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end gap-3 pt-3 border-t border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setShowPackageModal(false)}
+                    className="px-4 py-2 rounded-xl bg-white/5 text-slate-300 hover:bg-white/10 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold flex items-center gap-1.5 cursor-pointer shadow-lg shadow-purple-600/30"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    {packageFormMode === 'create' ? 'Create Package' : 'Save Package Changes'}
                   </button>
                 </div>
               </form>

@@ -1,4 +1,4 @@
-import { Service, CaseStudy, BlogPost, FAQ, Testimonial, SiteSettings } from '../types';
+import { Service, CaseStudy, BlogPost, FAQ, Testimonial, SiteSettings, PricingPackage } from '../types';
 
 const getApiBase = (): string => {
   if (typeof window !== 'undefined') {
@@ -51,6 +51,42 @@ export const api = {
   },
   getServiceBySlug: async (slug: string) => {
     return fetchAPI<{ success: boolean; data: Service; relatedCaseStudies?: CaseStudy[] }>(`/services/${slug}`);
+  },
+
+  // Packages & Pricing Plans
+  getPackages: async () => {
+    return fetchAPI<{ success: boolean; data: PricingPackage[] }>('/packages');
+  },
+  getAdminPackages: async (token: string) => {
+    return fetchAPI<{ success: boolean; data: PricingPackage[] }>('/packages/admin/all', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  },
+  createPackage: async (data: any, token: string) => {
+    return fetchAPI<{ success: boolean; data: PricingPackage }>('/packages/admin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
+  },
+  updatePackage: async (id: string, data: any, token: string) => {
+    return fetchAPI<{ success: boolean; data: PricingPackage }>(`/packages/admin/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
+  },
+  deletePackage: async (id: string, token: string) => {
+    return fetchAPI<{ success: boolean; message: string }>(`/packages/admin/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    });
   },
 
   // Case Studies
