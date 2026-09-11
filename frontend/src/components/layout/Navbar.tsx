@@ -185,7 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
           {/* Brand Logo - Enlarged and punchy */}
           <div className="flex items-center shrink-0">
-            <BrandLogo variant="auto" width={220} height={50} className="py-0.5" />
+            <BrandLogo variant="auto" width={240} height={54} className="py-0.5" />
           </div>
 
           {/* Desktop Navigation Links */}
@@ -204,20 +204,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
                     {/* Main Services Link: Clicking opens /services, hovering opens dropdown */}
                     <Link
                       href={link.href}
-                      className={`inline-flex items-center gap-1 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                         isActive || pathname.startsWith('/services')
                           ? isDark
-                            ? 'text-white bg-white/10'
-                            : 'text-purple-700 bg-purple-50 font-semibold'
+                            ? 'text-white font-semibold bg-white/10'
+                            : 'text-purple-700 font-semibold bg-purple-500/10'
                           : isDark
                             ? 'text-slate-300 hover:text-white hover:bg-white/5'
-                            : 'text-slate-700 hover:text-purple-700 hover:bg-slate-100'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                       }`}
                     >
-                      {link.name}
+                      <span>{link.name}</span>
                       <ChevronDown
-                        className={`w-4 h-4 transition-transform duration-200 ${
-                          servicesOpen ? 'rotate-180 text-purple-400' : 'text-slate-400'
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          servicesOpen ? 'rotate-180 text-purple-500' : 'text-slate-400'
                         }`}
                       />
                     </Link>
@@ -457,14 +457,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     isActive
                       ? isDark
-                        ? 'text-white bg-white/10'
-                        : 'text-purple-700 bg-purple-50 font-semibold'
+                        ? 'text-white font-semibold bg-white/10'
+                        : 'text-purple-700 font-semibold bg-purple-500/10'
                       : isDark
                         ? 'text-slate-300 hover:text-white hover:bg-white/5'
-                        : 'text-slate-700 hover:text-purple-700 hover:bg-slate-100'
+                        : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100/70'
                   }`}
                 >
                   {link.name}
@@ -473,20 +473,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
             })}
           </nav>
 
-          {/* Desktop Right Action - Unified Height (h-9.5) and Visual Design System */}
+          {/* Desktop Right Action - Clean Architectural Hierarchy */}
           <div className="hidden lg:flex items-center gap-2 shrink-0">
+            {/* 1. Client Login (Clean ghost action) */}
             <SignedOut>
               <SignInButton mode="modal">
                 <button
                   type="button"
-                  className={`h-9.5 px-3.5 rounded-xl inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap border transition-all cursor-pointer shrink-0 shadow-xs ${
+                  className={`h-9 px-3 rounded-lg inline-flex items-center gap-1.5 text-sm font-medium transition-colors cursor-pointer shrink-0 ${
                     isDark
-                      ? 'bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white border-white/10'
-                      : 'bg-slate-100/90 hover:bg-slate-200/80 text-slate-700 hover:text-slate-900 border-slate-200'
+                      ? 'text-slate-300 hover:text-white hover:bg-white/5'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   }`}
                   title="Client Portal Sign In"
                 >
-                  <User className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                  <User className="w-4 h-4 text-purple-500 shrink-0" />
                   <span className="whitespace-nowrap">Client Login</span>
                 </button>
               </SignInButton>
@@ -494,35 +495,40 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
 
             <SignedIn>
               <div
-                className={`h-9.5 px-2 rounded-xl border flex items-center justify-center shrink-0 shadow-xs ${
-                  isDark ? 'bg-white/[0.04] border-white/10' : 'bg-slate-100/90 border-slate-200'
+                className={`h-9 px-2 rounded-lg flex items-center justify-center shrink-0 ${
+                  isDark ? 'bg-white/5 border border-white/10' : 'bg-slate-100 border border-slate-200'
                 }`}
               >
                 <UserButton afterSignOutUrl="/" />
               </div>
             </SignedIn>
 
-            {/* Single Theme Toggle */}
-            <ThemeToggle />
-
+            {/* 2. Studio CMS (Subtle administrative status badge) */}
             <Link
               href="/admin"
-              className={`h-9.5 px-3.5 rounded-xl inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap border transition-all cursor-pointer shrink-0 shadow-xs group ${
+              className={`h-9 px-3 rounded-lg inline-flex items-center gap-1.5 text-xs font-semibold transition-all cursor-pointer shrink-0 border ${
                 isDark
-                  ? 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white border-purple-500/25 hover:border-purple-500/40'
-                  : 'bg-purple-50 hover:bg-purple-100/80 text-purple-800 hover:text-purple-950 border-purple-200 hover:border-purple-300'
+                  ? 'bg-purple-950/40 hover:bg-purple-900/50 text-purple-300 border-purple-800/40'
+                  : 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200/80'
               }`}
               title="Open SoloNomous Studio CMS & Admin Portal"
             >
-              <Shield className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+              <Shield className="w-3.5 h-3.5 text-purple-500 shrink-0" />
               <span className="whitespace-nowrap">Studio CMS</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
             </Link>
 
+            {/* 3. Theme Toggle (Minimal icon button) */}
+            <ThemeToggle />
+
+            {/* Hairline Divider */}
+            <div className={`h-5 w-[1px] mx-1 ${isDark ? 'bg-white/15' : 'bg-slate-200'}`} />
+
+            {/* 4. Primary CTA */}
             <button
               type="button"
               onClick={onStartProject}
-              className="h-9.5 px-4.5 rounded-xl inline-flex items-center gap-2 text-xs font-semibold whitespace-nowrap bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 text-white shadow-md shadow-purple-600/20 hover:shadow-purple-600/35 border border-purple-400/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shrink-0"
+              className="h-9 px-4.5 rounded-lg inline-flex items-center gap-2 text-sm font-semibold whitespace-nowrap bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 text-white shadow-md shadow-purple-600/25 hover:shadow-purple-600/40 border border-purple-400/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shrink-0"
             >
               <Rocket className="w-3.5 h-3.5 text-purple-200 shrink-0" />
               <span className="whitespace-nowrap">Start a Project</span>
@@ -534,7 +540,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
             <ThemeToggle />
             <Link
               href="/admin"
-              className={`h-9.5 px-3 rounded-xl border transition-colors cursor-pointer flex items-center justify-center gap-1.5 text-xs font-semibold shrink-0 shadow-xs ${
+              className={`h-9 px-3 rounded-lg border transition-colors cursor-pointer flex items-center justify-center gap-1.5 text-xs font-semibold shrink-0 ${
                 isDark
                   ? 'text-purple-300 hover:text-white bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/30'
                   : 'text-purple-800 hover:text-purple-950 bg-purple-50 hover:bg-purple-100 border-purple-200'
@@ -548,7 +554,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className={`h-9.5 w-9.5 rounded-xl border flex items-center justify-center transition-colors cursor-pointer shrink-0 shadow-xs focus:outline-hidden ${
+              className={`h-9 w-9 rounded-lg border flex items-center justify-center transition-colors cursor-pointer shrink-0 focus:outline-hidden ${
                 isDark
                   ? 'bg-white/5 text-slate-300 hover:text-white border-white/10'
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 border-slate-200'
@@ -556,7 +562,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-5 h-5 text-purple-500" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-4.5 h-4.5 text-purple-500" /> : <Menu className="w-4.5 h-4.5" />}
             </button>
           </div>
         </div>

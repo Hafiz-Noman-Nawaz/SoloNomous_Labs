@@ -87,7 +87,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         alt={BRANDING.companyName}
         width={width}
         height={height}
-        className={`h-9 sm:h-10 md:h-11 w-auto max-h-[52px] object-contain transition-transform duration-200 hover:scale-[1.02] ${imgClassName}`}
+        className={`h-9.5 sm:h-10 w-auto object-contain transition-transform duration-200 hover:scale-[1.02] ${imgClassName}`}
       />
     </div>
   );
