@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 import { Service, ServiceCategory } from '@/types';
 import {
   ArrowRight,
-  Sparkles,
+  Layers,
   CheckCircle2,
   ChevronRight,
   ExternalLink
@@ -135,7 +135,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       {/* Hero Category Header */}
       <div className="max-w-4xl mb-16">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs font-semibold text-purple-300 mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+          <Layers className="w-3.5 h-3.5 text-purple-400" />
           <span>Category Focus &middot; {services.length} Specialized Offerings</span>
         </div>
 

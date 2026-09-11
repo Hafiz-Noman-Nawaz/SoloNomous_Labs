@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { FAQ } from '@/types';
-import { ChevronDown, Search, HelpCircle, MessageSquare, Sparkles } from 'lucide-react';
+import { ChevronDown, Search, HelpCircle, MessageSquare } from 'lucide-react';
 
 export default function FAQPage() {
   const [faqs, setFaqs] = useState<FAQ[]>([]);

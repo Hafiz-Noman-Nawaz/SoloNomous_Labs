@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { CheckCircle2, Sparkles, ArrowRight, ShieldCheck, Clock, Tag, PlusCircle } from 'lucide-react';
+import { CheckCircle2, ArrowRight, ShieldCheck, Clock, Tag, PlusCircle, Cpu, Rocket } from 'lucide-react';
 import { PricingPackage } from '@/types';
 import { useModal } from '@/context/ModalContext';
 
@@ -33,7 +33,7 @@ export default function PricingContent({ initialPackages = [] }: Props) {
       {packages.length === 0 ? (
         <div className="max-w-2xl mx-auto mb-20 p-10 sm:p-12 rounded-3xl glass-card border border-purple-500/30 text-center relative overflow-hidden shadow-2xl shadow-purple-950/30">
           <div className="w-16 h-16 rounded-2xl bg-purple-600/20 border border-purple-500/40 mx-auto flex items-center justify-center text-purple-300 mb-5">
-            <Sparkles className="w-8 h-8" />
+            <Cpu className="w-8 h-8" />
           </div>
           <span className="px-3.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs font-semibold text-purple-300">
             Tailored Architectural Scoping
@@ -50,7 +50,7 @@ export default function PricingContent({ initialPackages = [] }: Props) {
               onClick={() => openProjectModal('Custom Engineering Scope')}
               className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4" /> Request Custom Scope Brief
+              <ArrowRight className="w-4 h-4" /> Request Custom Scope Brief
             </button>
             <Link
               href="/contact"
@@ -148,7 +148,7 @@ export default function PricingContent({ initialPackages = [] }: Props) {
                         : 'bg-white/10 hover:bg-white/15 text-white border border-white/15'
                     }`}
                   >
-                    <Sparkles className="w-3.5 h-3.5" /> {tier.ctaText || 'Kickoff Sprint'}
+                    <ArrowRight className="w-3.5 h-3.5" /> {tier.ctaText || 'Kickoff Sprint'}
                   </button>
 
                   <Link
@@ -188,7 +188,7 @@ export default function PricingContent({ initialPackages = [] }: Props) {
         </div>
 
         <div className="glass-card p-6 rounded-2xl flex items-start gap-4">
-          <Sparkles className="w-6 h-6 text-purple-400 shrink-0 mt-1" />
+          <CheckCircle2 className="w-6 h-6 text-purple-400 shrink-0 mt-1" />
           <div>
             <h4 className="text-sm font-bold text-white mb-1">Post-Launch Warranty</h4>
             <p className="text-xs text-slate-400 leading-relaxed">

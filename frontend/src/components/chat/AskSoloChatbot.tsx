@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Sparkles, User, ExternalLink, ArrowRight, Loader2 } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, User, ExternalLink, ArrowRight, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Message {

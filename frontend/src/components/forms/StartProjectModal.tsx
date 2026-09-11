@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, ArrowRight, ArrowLeft, Loader2, Sparkles, UserCheck, Lock, MessageSquare } from 'lucide-react';
+import { X, CheckCircle, ArrowRight, ArrowLeft, Loader2, Rocket, UserCheck, Lock, MessageSquare } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useUser, SignInButton } from '@clerk/nextjs';
 import { api } from '@/lib/api';
@@ -216,7 +216,7 @@ export const StartProjectModal: React.FC<StartProjectModalProps> = ({
               {/* Header */}
               <div className="mb-6">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-medium mb-2">
-                  <Sparkles className="w-3.5 h-3.5" /> Start an Engineering Engagement
+                  <Rocket className="w-3.5 h-3.5" /> Start an Engineering Engagement
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold font-display text-white">
                   Step {step} of 3: {step === 1 ? 'Select Capability & Scope' : step === 2 ? 'Budget & Timeline' : 'Your Information & Brief'}

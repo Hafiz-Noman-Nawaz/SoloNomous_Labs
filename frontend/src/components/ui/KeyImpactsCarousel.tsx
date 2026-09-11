@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { ChevronLeft, ChevronRight, TrendingUp, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp, Zap } from 'lucide-react';
 
 export interface KeyImpactItem {
   metric: string;
@@ -141,7 +141,7 @@ export function KeyImpactsCarousel({
       >
         <div className="absolute -top-6 -right-6 w-16 h-16 bg-purple-600/10 rounded-full blur-xl pointer-events-none" />
         <div className="inline-flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider text-purple-400 mb-1">
-          <Sparkles className="w-3 h-3 text-purple-400" />
+          <TrendingUp className="w-3 h-3 text-purple-400" />
           <span>Key Impact</span>
         </div>
         <div className="text-xl sm:text-2xl font-black font-display bg-gradient-to-r from-purple-200 via-white to-purple-300 bg-clip-text text-transparent leading-none my-1">

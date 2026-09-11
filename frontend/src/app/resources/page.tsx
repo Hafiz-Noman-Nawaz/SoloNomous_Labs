@@ -1,7 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Download, FileText, CheckSquare, Sparkles, Terminal, ArrowRight } from 'lucide-react';
+import { Download, FileText, CheckSquare, Send, Terminal, ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Engineering Resources & Technical Guides',
@@ -104,7 +104,7 @@ export default function ResourcesPage() {
           href="/contact"
           className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition-all shadow-md shadow-purple-600/20"
         >
-          <Sparkles className="w-4 h-4" /> Subscribe to Lab Research
+          <Send className="w-4 h-4" /> Subscribe to Lab Research
         </Link>
       </div>
     </div>

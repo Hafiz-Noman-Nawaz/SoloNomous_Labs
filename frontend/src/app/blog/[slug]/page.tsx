@@ -9,7 +9,7 @@ import {
   Calendar,
   User,
   ArrowRight,
-  Sparkles,
+  Terminal,
   Layers,
   ChevronLeft
 } from 'lucide-react';
@@ -262,7 +262,7 @@ export default async function BlogPostDetailPage({ params }: Props) {
         <div className="my-16 p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-purple-950/30 via-[#12111A] to-purple-950/20 border border-purple-500/30 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-400 mb-2">
-            <Sparkles className="w-4 h-4" /> Need This Architecture Built?
+            <Terminal className="w-4 h-4" /> Need This Architecture Built?
           </div>
           <h3 className="text-xl sm:text-2xl font-bold font-display text-white mb-2">
             SoloNomous Labs deploys production SaaS & Autonomous AI systems in 4-8 weeks.

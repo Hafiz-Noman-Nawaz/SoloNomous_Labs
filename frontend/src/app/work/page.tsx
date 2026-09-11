@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { CaseStudy } from '@/types';
-import { ArrowRight, Sparkles, Layers, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Terminal, Layers, CheckCircle2 } from 'lucide-react';
 import { KeyImpactsCarousel } from '@/components/ui/KeyImpactsCarousel';
 
 export default function WorkPage() {
@@ -109,7 +109,7 @@ export default function WorkPage() {
       <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-purple-900/30 via-indigo-900/20 to-purple-950/40 border border-purple-500/30 mb-16 flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="space-y-1 text-center sm:text-left">
           <div className="inline-flex items-center gap-2 text-xs font-semibold text-purple-300">
-            <Sparkles className="w-3.5 h-3.5" /> Founder Software Architecture Showcase
+            <Terminal className="w-3.5 h-3.5" /> Founder Software Architecture Showcase
           </div>
           <h3 className="text-xl sm:text-2xl font-bold font-display text-white">
             Explore Noman Nawaz&apos;s Live Portfolio & Interactive Demos

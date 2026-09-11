@@ -11,7 +11,7 @@ import {
   BookOpen,
   Settings,
   Plus,
-  Sparkles,
+  Cpu,
   Share2,
   ExternalLink,
   Save,
@@ -1737,7 +1737,7 @@ export default function AdminPortalPage() {
               {/* Social Repurposing Panel (5 cols) */}
               <div className="lg:col-span-5 glass-card p-6 rounded-3xl border border-white/10 space-y-4">
                 <div className="flex items-center gap-2 text-purple-400">
-                  <Sparkles className="w-4 h-4" />
+                  <Share2 className="w-4 h-4" />
                   <h4 className="text-xs font-bold uppercase tracking-wider">Social Derivative Drafts</h4>
                 </div>
 

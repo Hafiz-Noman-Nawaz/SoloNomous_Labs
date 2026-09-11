@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { BlogPost } from '@/types';
-import { Search, ArrowRight, BookOpen, Clock, Calendar, Sparkles } from 'lucide-react';
+import { Search, ArrowRight, BookOpen, Clock, Calendar } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 export default function BlogIndexPage() {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Sparkles, Terminal, Shield, Zap, ArrowRight, Heart } from 'lucide-react';
+import { Terminal, Shield, Zap, ArrowRight, Heart } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Careers & Engineering Culture',

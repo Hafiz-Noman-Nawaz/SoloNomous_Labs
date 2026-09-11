@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 import { SiteSettings } from '@/types';
 import {
   Shield,
-  Sparkles,
+  Target,
   Terminal,
   Cpu,
   ArrowRight,
@@ -146,7 +146,7 @@ export default function AboutPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
         <div className="glass-card p-8 rounded-2xl relative overflow-hidden">
           <div className="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-300 mb-6">
-            <Sparkles className="w-6 h-6" />
+            <Target className="w-6 h-6" />
           </div>
           <h3 className="text-xl font-bold font-display text-white mb-3">Our Mission</h3>
           <p className="text-sm text-slate-300 leading-relaxed">

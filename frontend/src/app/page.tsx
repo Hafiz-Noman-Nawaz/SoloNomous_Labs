@@ -8,7 +8,8 @@ import { Service, CaseStudy, BlogPost, Testimonial, SiteSettings } from '@/types
 import { useModal } from '@/context/ModalContext';
 import {
   ArrowRight,
-  Sparkles,
+  Rocket,
+  Terminal,
   Layers,
   ShieldCheck,
   Cpu,
@@ -152,7 +153,7 @@ export default function HomePage() {
                 onClick={() => triggerStart()}
                 className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm transition-all shadow-xl shadow-purple-600/30 flex items-center justify-center gap-2.5"
               >
-                <Sparkles className="w-4 h-4 text-purple-200" />
+                <Rocket className="w-4 h-4 text-purple-200" />
                 <span>{hero.primaryCta || 'Start a Project'}</span>
               </MagneticButton>
 
@@ -644,7 +645,7 @@ export default function HomePage() {
           <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-purple-600/20 blur-[90px] rounded-full -z-10" />
 
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold mb-4">
-            <Sparkles className="w-3.5 h-3.5" /> Direct Engineer Access
+            <Terminal className="w-3.5 h-3.5" /> Direct Engineer Access
           </span>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display text-white max-w-2xl mx-auto leading-tight">

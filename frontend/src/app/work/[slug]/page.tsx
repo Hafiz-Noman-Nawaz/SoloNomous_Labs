@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { api } from '@/lib/api';
 import {
   ArrowRight,
-  Sparkles,
+  Rocket,
   CheckCircle2,
   Terminal,
   Layers,
@@ -185,7 +185,7 @@ export default async function CaseStudyDetailPage({ params }: Props) {
           href="/contact"
           className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm transition-all shadow-lg shadow-purple-600/30"
         >
-          <Sparkles className="w-4 h-4" /> Start an Engineering Consultation
+          <Rocket className="w-4 h-4" /> Start an Engineering Consultation
         </Link>
       </div>
     </div>

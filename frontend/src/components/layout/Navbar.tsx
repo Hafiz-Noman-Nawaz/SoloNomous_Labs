@@ -15,7 +15,7 @@ import {
   Server,
   Wrench,
   ArrowRight,
-  Sparkles,
+  Rocket,
   Shield,
   User
 } from 'lucide-react';
@@ -517,7 +517,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
               onClick={onStartProject}
               className="relative inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white text-sm font-semibold shadow-lg shadow-purple-900/30 hover:shadow-purple-700/40 border border-purple-400/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-purple-200" />
+              <Rocket className="w-4 h-4 text-purple-200" />
               <span>Start a Project</span>
             </button>
           </div>
@@ -755,7 +755,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
                 }}
                 className="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 hover:opacity-95 text-white font-semibold text-center text-sm shadow-xl shadow-purple-600/30 flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Sparkles className="w-4 h-4 text-purple-200" /> Start a Project
+                <Rocket className="w-4 h-4 text-purple-200" /> Start a Project
               </button>
 
               <Link

@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { api } from '@/lib/api';
 import {
   ArrowRight,
-  Sparkles,
+  Rocket,
   CheckCircle2,
   AlertCircle,
   Cpu,
@@ -70,7 +70,7 @@ export default async function ServiceDetailPage({ params }: Props) {
             href={`/contact?service=${encodeURIComponent(service.title)}`}
             className="px-7 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm transition-all shadow-lg shadow-purple-600/30 flex items-center gap-2"
           >
-            <Sparkles className="w-4 h-4 text-purple-200" />
+            <Rocket className="w-4 h-4 text-purple-200" />
             Order / Kickoff This Service
           </Link>
           {service.startingPrice && (
@@ -244,7 +244,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           href={`/contact?service=${encodeURIComponent(service.title)}`}
           className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm transition-all shadow-xl shadow-purple-600/30"
         >
-          <Sparkles className="w-4 h-4" /> Order / Start Project Brief
+          <ArrowRight className="w-4 h-4" /> Order / Start Project Brief
         </Link>
       </div>
     </div>
