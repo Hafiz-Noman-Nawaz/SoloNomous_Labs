@@ -473,24 +473,24 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
             })}
           </nav>
 
-          {/* Desktop Right Action: Theme Toggle on most left, 3 identically sized buttons on the right */}
+          {/* Desktop Right Action: Theme Toggle + Client Login/Portal + Start a Project */}
           <div className="hidden lg:flex items-center gap-2.5">
-            {/* 1. Theme Toggle on the most left */}
+            {/* 1. Theme Toggle */}
             <ThemeToggle />
 
-            {/* 2. Client Login */}
+            {/* 2. Client Login / Portal */}
             <SignedOut>
               <SignInButton mode="modal">
                 <button
                   type="button"
-                  className={`h-[38px] px-4 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-2 border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs shrink-0 ${
+                  className={`h-[38px] px-3.5 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-1.5 border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs shrink-0 ${
                     isDark
-                      ? 'bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white border-white/10 hover:border-white/20'
-                      : 'bg-slate-100 hover:bg-slate-200/80 text-slate-800 hover:text-slate-950 border-slate-300/80 hover:border-slate-400'
+                      ? 'bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border-white/10'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border-slate-300'
                   }`}
                   title="Client Portal Sign In"
                 >
-                  <User className="w-3.5 h-3.5 text-purple-500" />
+                  <User className="w-3.5 h-3.5 text-purple-400" />
                   <span>Client Login</span>
                 </button>
               </SignInButton>
@@ -499,7 +499,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
             <SignedIn>
               <Link
                 href="/portal"
-                className={`h-[38px] px-3 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-1.5 border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs shrink-0 ${
+                className={`h-[38px] px-3.5 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-1.5 border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs shrink-0 ${
                   isDark
                     ? 'bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 hover:text-white border-purple-500/30'
                     : 'bg-purple-100 hover:bg-purple-200 text-purple-900 border-purple-300'
@@ -518,60 +518,30 @@ export const Navbar: React.FC<NavbarProps> = ({ onStartProject }) => {
               </div>
             </SignedIn>
 
-            {/* 3. Studio CMS */}
-            <Link
-              href="/admin"
-              className={`h-[38px] px-4 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-2 border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs shrink-0 ${
-                isDark
-                  ? 'bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white border-white/10 hover:border-white/20'
-                  : 'bg-slate-100 hover:bg-slate-200/80 text-slate-800 hover:text-slate-950 border-slate-300/80 hover:border-slate-400'
-              }`}
-              title="Open SoloNomous Studio CMS & Admin Portal"
-            >
-              <Shield className="w-3.5 h-3.5 text-purple-500 transition-colors" />
-              <span>Studio CMS</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-            </Link>
-
-            {/* 4. Start a Project (React Bits Shiny Shimmer Button) */}
+            {/* 3. Primary CTA: Start a Project */}
             <button
               onClick={onStartProject}
               className="relative h-[38px] px-5 rounded-xl bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 text-white text-xs font-semibold shadow-md shadow-purple-900/30 hover:shadow-purple-700/40 border border-purple-400/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer inline-flex items-center justify-center gap-2 overflow-hidden group shrink-0"
             >
-              {/* React Bits shiny shimmer shine line */}
               <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out pointer-events-none" />
               <Rocket className="w-3.5 h-3.5 text-purple-200 shrink-0" />
               <span className="relative z-10">Start a Project</span>
             </button>
           </div>
 
-          {/* Mobile Right Action: ONLY below lg, single theme toggle, CMS, and burger button */}
+          {/* Mobile Right Action: Theme toggle and clean menu trigger */}
           <div className="flex lg:hidden items-center gap-2">
             <ThemeToggle />
-            <Link
-              href="/admin"
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 rounded-xl border transition-colors cursor-pointer ${
                 isDark
-                  ? 'text-purple-400 hover:text-white hover:bg-white/5 border-purple-500/30'
-                  : 'text-purple-700 hover:text-purple-900 hover:bg-purple-50 border-purple-300'
-              }`}
-              title="Admin Portal"
-            >
-              <Shield className="w-5 h-5" />
-            </Link>
-
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className={`p-2 rounded-xl border transition-colors cursor-pointer focus:outline-hidden ${
-                isDark
                   ? 'text-slate-300 hover:text-white hover:bg-white/5 border-white/10'
-                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100 border-slate-300'
+                  : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100 border-slate-300'
               }`}
               aria-label="Toggle navigation menu"
-              aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-6 h-6 text-purple-500" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>

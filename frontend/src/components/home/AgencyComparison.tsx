@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Check, X, ShieldCheck, Zap, Award, Users, AlertTriangle } from 'lucide-react';
+import { Check, X, ShieldCheck, Zap, Award, AlertTriangle } from 'lucide-react';
 import { useModal } from '@/context/ModalContext';
 
 export const AgencyComparison: React.FC = () => {
@@ -53,56 +53,56 @@ export const AgencyComparison: React.FC = () => {
   ];
 
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-[#07060B] border-y border-white/5 relative" id="comparison">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-slate-100/50 dark:bg-[#07060B]/60 border-y border-slate-200/80 dark:border-white/5 relative" id="comparison">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="max-w-3xl mb-16 text-center mx-auto">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-700 dark:text-purple-300 text-xs font-semibold uppercase tracking-wider mb-4">
             <Award className="w-3.5 h-3.5" /> High-Leverage Advantage
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display text-white tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display text-slate-900 dark:text-white tracking-tight leading-tight">
             SoloNomous Labs vs. <span className="text-gradient-purple">The Alternatives</span>
           </h2>
-          <p className="text-slate-300 text-sm sm:text-base mt-4 leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base mt-4 leading-relaxed">
             Hiring full-time engineers is slow and expensive. Big agencies have massive overhead. Freelancers lack accountability. SoloNomous Labs delivers senior-level architectural execution with milestone transparency.
           </p>
         </div>
 
         {/* Desktop Comparison Table (4 Columns) */}
-        <div className="hidden xl:block overflow-hidden rounded-3xl border border-white/10 glass-card shadow-2xl shadow-purple-950/20">
-          <div className="grid grid-cols-12 bg-white/[0.03] border-b border-white/10 p-5 text-xs font-bold uppercase tracking-wider">
-            <div className="col-span-3 text-slate-400">Strategic Metric</div>
-            <div className="col-span-3 text-purple-300 font-extrabold flex items-center gap-1.5 bg-purple-600/15 -my-5 py-5 px-4 border-x border-purple-500/30">
-              <Zap className="w-4 h-4 text-purple-400" /> SoloNomous Labs (Noman Nawaz)
+        <div className="hidden xl:block overflow-hidden rounded-3xl border border-slate-200 dark:border-white/10 glass-card shadow-xl">
+          <div className="grid grid-cols-12 bg-slate-50 dark:bg-white/[0.03] border-b border-slate-200 dark:border-white/10 p-5 text-xs font-bold uppercase tracking-wider">
+            <div className="col-span-3 text-slate-500 dark:text-slate-400">Strategic Metric</div>
+            <div className="col-span-3 text-purple-700 dark:text-purple-300 font-extrabold flex items-center gap-1.5 bg-purple-50 dark:bg-purple-600/15 -my-5 py-5 px-4 border-x border-purple-200 dark:border-purple-500/30">
+              <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400" /> SoloNomous Labs (Noman Nawaz)
             </div>
-            <div className="col-span-2 text-slate-400 px-3">In-House Hiring</div>
-            <div className="col-span-2 text-slate-400 px-3">Traditional Big Agencies</div>
-            <div className="col-span-2 text-slate-400 px-3">Unvetted Freelancers</div>
+            <div className="col-span-2 text-slate-500 dark:text-slate-400 px-3">In-House Hiring</div>
+            <div className="col-span-2 text-slate-500 dark:text-slate-400 px-3">Traditional Big Agencies</div>
+            <div className="col-span-2 text-slate-500 dark:text-slate-400 px-3">Unvetted Freelancers</div>
           </div>
 
-          <div className="divide-y divide-white/5 text-xs sm:text-sm">
+          <div className="divide-y divide-slate-200/80 dark:divide-white/5 text-xs sm:text-sm">
             {comparisonPoints.map((pt, i) => (
               <div
                 key={i}
-                className="grid grid-cols-12 p-5 items-center hover:bg-white/[0.01] transition-colors"
+                className="grid grid-cols-12 p-5 items-center hover:bg-slate-50/50 dark:hover:bg-white/[0.01] transition-colors"
               >
-                <div className="col-span-3 font-semibold text-white pr-4">
+                <div className="col-span-3 font-semibold text-slate-900 dark:text-white pr-4">
                   {pt.feature}
                 </div>
-                <div className="col-span-3 text-purple-100 font-medium pr-4 flex items-start gap-2 bg-purple-600/10 -my-5 py-5 px-4 border-x border-purple-500/20">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div className="col-span-3 text-purple-950 dark:text-purple-100 font-medium pr-4 flex items-start gap-2 bg-purple-50/70 dark:bg-purple-600/10 -my-5 py-5 px-4 border-x border-purple-200/80 dark:border-purple-500/20">
+                  <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <span>{pt.solonomous}</span>
                 </div>
-                <div className="col-span-2 text-slate-400 px-3 flex items-start gap-2">
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400/80 shrink-0 mt-0.5" />
+                <div className="col-span-2 text-slate-500 dark:text-slate-400 px-3 flex items-start gap-2">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
                   <span className="text-xs">{pt.inhouse}</span>
                 </div>
-                <div className="col-span-2 text-slate-400 px-3 flex items-start gap-2">
-                  <X className="w-3.5 h-3.5 text-red-400/80 shrink-0 mt-0.5" />
+                <div className="col-span-2 text-slate-500 dark:text-slate-400 px-3 flex items-start gap-2">
+                  <X className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-0.5" />
                   <span className="text-xs">{pt.agencies}</span>
                 </div>
-                <div className="col-span-2 text-slate-400 px-3 flex items-start gap-2">
-                  <X className="w-3.5 h-3.5 text-red-400/80 shrink-0 mt-0.5" />
+                <div className="col-span-2 text-slate-500 dark:text-slate-400 px-3 flex items-start gap-2">
+                  <X className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-0.5" />
                   <span className="text-xs">{pt.freelancers}</span>
                 </div>
               </div>
@@ -113,34 +113,34 @@ export const AgencyComparison: React.FC = () => {
         {/* Mobile & Tablet Card Layout */}
         <div className="xl:hidden space-y-6">
           {comparisonPoints.map((pt, i) => (
-            <div key={i} className="glass-card p-6 rounded-2xl border border-white/10 space-y-4">
-              <h4 className="text-base font-bold text-white pb-2 border-b border-white/10">
+            <div key={i} className="glass-card p-6 rounded-2xl border border-slate-200 dark:border-white/10 space-y-4">
+              <h4 className="text-base font-bold text-slate-900 dark:text-white pb-2 border-b border-slate-200 dark:border-white/10">
                 {pt.feature}
               </h4>
               <div className="space-y-3 text-xs">
-                <div className="p-3.5 rounded-xl bg-purple-600/20 border border-purple-500/40">
-                  <span className="font-bold text-purple-300 block mb-1 flex items-center gap-1.5">
-                    <Check className="w-4 h-4 text-emerald-400" /> SoloNomous Labs:
+                <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-600/20 border border-purple-200 dark:border-purple-500/40">
+                  <span className="font-bold text-purple-800 dark:text-purple-300 block mb-1 flex items-center gap-1.5">
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> SoloNomous Labs:
                   </span>
-                  <p className="text-slate-100 font-medium">{pt.solonomous}</p>
+                  <p className="text-slate-800 dark:text-slate-100 font-medium">{pt.solonomous}</p>
                 </div>
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                  <span className="font-bold text-slate-400 block mb-1 flex items-center gap-1">
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-400/80" /> In-House Hiring:
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/5">
+                  <span className="font-bold text-slate-500 dark:text-slate-400 block mb-1 flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> In-House Hiring:
                   </span>
-                  <p className="text-slate-400">{pt.inhouse}</p>
+                  <p className="text-slate-500 dark:text-slate-400">{pt.inhouse}</p>
                 </div>
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                  <span className="font-bold text-slate-400 block mb-1 flex items-center gap-1">
-                    <X className="w-3.5 h-3.5 text-red-400/80" /> Traditional Big Agencies:
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/5">
+                  <span className="font-bold text-slate-500 dark:text-slate-400 block mb-1 flex items-center gap-1">
+                    <X className="w-3.5 h-3.5 text-rose-500" /> Traditional Big Agencies:
                   </span>
-                  <p className="text-slate-400">{pt.agencies}</p>
+                  <p className="text-slate-500 dark:text-slate-400">{pt.agencies}</p>
                 </div>
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                  <span className="font-bold text-slate-400 block mb-1 flex items-center gap-1">
-                    <X className="w-3.5 h-3.5 text-red-400/80" /> Unvetted Freelancers:
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/5">
+                  <span className="font-bold text-slate-500 dark:text-slate-400 block mb-1 flex items-center gap-1">
+                    <X className="w-3.5 h-3.5 text-rose-500" /> Unvetted Freelancers:
                   </span>
-                  <p className="text-slate-400">{pt.freelancers}</p>
+                  <p className="text-slate-500 dark:text-slate-400">{pt.freelancers}</p>
                 </div>
               </div>
             </div>
